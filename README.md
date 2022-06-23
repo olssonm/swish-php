@@ -95,7 +95,7 @@ $response = Swish::create(new Payment([
 ]));
 ```
 
-## Available methods
+### Available methods
 
 This package handles the most common Swish-related tasks; retrieve, make and cancel payments, as well as retrieve and make refunds. All of them are performed via `Olssonm\Swish\Client`;
 
@@ -103,3 +103,37 @@ This package handles the most common Swish-related tasks; retrieve, make and can
 `$client->create(\Olssonm\Swish\Payment $payment);`  
 `$client->cancel(\Olssonm\Swish\Payment $payment);`  
 `$client->refund(\Olssonm\Swish\Refund $payment);`
+
+## Callback
+
+Swish recommends to not use the `payments`-endpoint to get the status of a payment or refund (even if they themselves use it in their examples...), but instead use callbacks.
+
+This package includes a simple helper to retrieve a `Payment` or `Refund` object from a callback that will contain all data from Swish:
+
+```php 
+use Olssonm\Swish\Callback;
+
+$paymentOrRefund = Callback::parse($content = null);
+
+// get_class($paymentOrRefund) = \Olssonm\Swish\Payment::class or \Olssonm\Swish\Refund::class
+```
+
+The helper automatically retrieve the current HTTP-request. You may however inject your own data if needed (or if you have a Laravel request-object ready):
+
+```php
+class SwishController 
+{
+    public function Callback(Request $request)
+    {
+        $data = Callback::parse($content = $request->getContent());
+
+        if(get_class($data) == \Olssonm\Swish\Payment::class) {
+            // Handle payment callback
+        } else if(get_class($data) == \Olssonm\Swish\Refund::class) {
+            // Handle refund callback
+        }
+    }
+}
+```
+
+*Note: in a real world scenario you probably want to use seperate callback-urls for your refunds and payments to prevent unnecessary parsing as the example above* 
