@@ -60,7 +60,7 @@ class SwishServiceProvider extends ServiceProvider
             return new Client($certificates, config('swish.endpoint'));
         });
 
-        $this->app->bind(\Olssonm\Swish\Client::class, 'swish');
+        $this->app->bind(Client::class, 'swish');
     }
 
     /**

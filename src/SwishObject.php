@@ -41,13 +41,13 @@ class SwishObject implements \ArrayAccess, \Countable, \JsonSerializable
     #[\ReturnTypeWillChange]
     public function offsetUnset($key)
     {
-        unset($this->{$key});
+        unset($this->values[$key]);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($k)
+    public function offsetGet($key)
     {
-        return \array_key_exists($k, $this->_values) ? $this->_values[$k] : null;
+        return \array_key_exists($key, $this->values) ? $this->values[$key] : null;
     }
 
     #[\ReturnTypeWillChange]
@@ -66,5 +66,4 @@ class SwishObject implements \ArrayAccess, \Countable, \JsonSerializable
     {
         return $this->values;
     }
-
 }

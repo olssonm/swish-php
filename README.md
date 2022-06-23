@@ -16,10 +16,10 @@ Certificates and documentation for testing is available here. A quick rundown on
 
 When creating the client you will have to set wich environemnt you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/v2`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
 
-```
+``` php
 $certificates = [
     '/path/to/my/certificate.p12',
-    'my-certificate-password
+    'my-certificate-password'
 ];
 $client = new Client($certificates, $endpoint = Client::TEST_ENDPOINT)
 ```

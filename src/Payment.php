@@ -20,4 +20,5 @@ namespace Olssonm\Swish;
  * @property string $additionalInformation
  */
 class Payment extends SwishObject
-{}
+{
+}

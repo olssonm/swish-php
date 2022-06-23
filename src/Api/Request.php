@@ -6,40 +6,63 @@ use GuzzleHttp\Psr7\Response;
 use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Refund;
+use Olssonm\Swish\RefundResult;
 
 trait Request
 {
+    /**
+     * Fetch a payment.
+     *
+     * @param Payment $payment
+     * @return Payment
+     */
     public function get(Payment $payment): Payment
     {
-        $response = $this->call('PUT', sprintf('/payments/%s', $payment->id));
+        $response = $this->call('GET', sprintf('/payments/%s', $payment->id));
+
         return new Payment(json_decode((string) $response->getBody(), true));
     }
 
+    /**
+     * Create a payment.
+     *
+     * @param Payment $payment
+     * @return PaymentResult
+     */
     public function create(Payment $payment): PaymentResult
     {
         $response = $this->call('PUT', '/payments', $payment->toArray());
 
-        $parseId = function(Response $response) {
-            if (preg_match('/\/([^\/]+)$/', $response->getHeaderLine('Location'), $matches) === 1) {
-                return $matches[1];
-            }
-            return null;
-        };
-
         return new PaymentResult([
-            'id' => $parseId($response),
-            'location' => $response->getHeader('Location') ?? null,
-            'paymentRequestToken' => $response->getHeader('PaymentRequestToken') ??  null,
+            'id' => $this->parseId($response),
+            'location' => $response->getHeaderLine('Location') ?? null,
+            'paymentRequestToken' => $response->getHeaderLine('PaymentRequestToken') ??  null,
         ]);
     }
 
-    public function refund(Refund $refund): Refund
+    /**
+     * Create a refund.
+     *
+     * @param Refund $refund
+     * @return Refund
+     */
+    public function refund(Refund $refund): RefundResult
     {
         $response = $this->call('PUT', '/refund', $refund->toArray());
-        return new Refund(json_decode((string) $response->getBody(), true));
+
+        return new RefundResult([
+            'id' => $this->parseId($response),
+            'location' => $response->getHeaderLine('Location') ?? null
+        ]);
     }
 
-    public function cancel(Payment $payment)
+    /**
+     * Cancel a payment.
+     *
+     * @param Payment $payment
+     * @return Payment
+     */
+    public function cancel(Payment $payment): Payment
     {
         $response = $this->call('PATCH', sprintf('/paymentrequests/%s', $payment->id), array_merge([
             'headers' => [
@@ -50,10 +73,19 @@ trait Request
             ],
             $payment->toArray()
         ]));
+
         return new Payment(json_decode((string) $response->getBody(), true));
     }
 
-    protected function call(string $verb, string $uri, array $payload = []): Response
+    /**
+     * Main API caller
+     *
+     * @param string $verb
+     * @param string $uri
+     * @param array $payload
+     * @return Response
+     */
+    public function call(string $verb, string $uri, array $payload = []): Response
     {
         $response = $this->client->request(
             $verb,
@@ -70,4 +102,17 @@ trait Request
         return $response;
     }
 
+    /**
+     * Parse the ID from the response's Location-header.
+     *
+     * @param Response $response
+     * @return mixed
+     */
+    private function parseId(Response $response)
+    {
+        if (preg_match('/\/([^\/]+)$/', $response->getHeaderLine('Location'), $matches) === 1) {
+            return $matches[1];
+        }
+        return null;
+    }
 }
