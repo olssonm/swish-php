@@ -5,7 +5,12 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Olssonm\Swish\Callback;
 use Olssonm\Swish\Client;
+use Olssonm\Swish\Exceptions\CallbackDecodingException;
+use Olssonm\Swish\Exceptions\ClientException;
+use Olssonm\Swish\Exceptions\ServerException;
+use Olssonm\Swish\Exceptions\ValidationException;
 use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Providers\SwishServiceProvider;
@@ -209,4 +214,133 @@ it('can make cancel payment request', function () {
 
     $this->assertEquals('5D59DA1B1632424E874DDB219AD54597', $response->id);
     $this->assertEquals('CANCELLED', $response->status);
+});
+
+it('can handle callback', function() {
+    $paymentCallback = '{
+        "id": "5D59DA1B1632424E874DDB219AD54597",
+        "payeePaymentReference": "0123456789",
+        "paymentReference": "1E2FC19E5E5E4E18916609B7F8911C12",
+        "callbackUrl": "https://example.com/api/swishcb/paymentrequests",
+        "payerAlias": "4671234768",
+        "payeeAlias": "1231181189",
+        "amount": 100.00,
+        "currency": "SEK",
+        "message": "Kingston USB Flash Drive 8 GB",
+        "status": "PAID",
+        "dateCreated": "2019-01-02T14:29:51.092Z",
+        "datePaid": "2019-01-02T14:29:55.093Z",
+        "errorCode": null,
+        "errorMessage": ""
+    }';
+
+    $refundCallback = '{
+        "amount": "100.00",
+        "originalPaymentReference": "5D59DA1B1632424E874DDB219AD54597",
+        "dateCreated": "2020-10-29T13:40:27.950+0100",
+        "payerPaymentReference": null,
+        "payerAlias": "1231181189",
+        "callbackUrl": "https://9036c2a41fe0.ngrok.io/callback",
+        "currency": "SEK",
+        "id": "136A8AA7052F42CCB8563C78AB54C66B",
+        "payeeAlias": null,
+        "status": "DEBITED"
+    }';
+
+    $payment = Callback::parse($paymentCallback);
+    $refund = Callback::parse($refundCallback);
+
+    $this->assertInstanceOf(Payment::class, $payment);
+    $this->assertEquals('5D59DA1B1632424E874DDB219AD54597', $payment->id);
+
+    $this->assertInstanceOf(Refund::class, $refund);
+    $this->assertEquals('5D59DA1B1632424E874DDB219AD54597', $refund->originalPaymentReference);
+    $this->assertEquals('136A8AA7052F42CCB8563C78AB54C66B', $refund->id);
+});
+
+it('throws ValidationException', function () {
+    $payment = new Payment();
+    $payment->id = 123;
+    $payment->amount = 100;
+    $payment->currency = 'SEK';
+    $payment->payee = '123456789';
+
+    $container = [];
+    $mock = new MockHandler([
+        new Response(422, [], '{
+            "id": "5D59DA1B1632424E874DDB219AD54597",
+            "payeePaymentReference": "0123456789",
+            "paymentReference": "1E2FC19E5E5E4E18916609B7F8911C12",
+            "callbackUrl": "",
+            "payerAlias": "4671234768",
+            "payeeAlias": "1231181189",
+            "amount": 100.00,
+            "currency": "SEK",
+            "message": "Kingston USB Flash Drive 8 GB",
+            "status": "PAID",
+            "dateCreated": "2019-01-02T14:29:51.092Z",
+            "datePaid": "2019-01-02T14:29:55.093Z",
+            "errorCode": "RP03",
+            "errorMessage": "Callback URL is missing or does not use HTTPS."
+        }'),
+    ]);
+    $stack = HandlerStack::create($mock);
+    $stack->push(Middleware::history($container));
+
+    $client = new Client([], Client::TEST_ENDPOINT, new GuzzleHttpClient([
+        'handler' => $stack,
+        'http_errors' => false,
+        'base_uri' => Client::TEST_ENDPOINT,
+    ]));
+
+    try {
+        $response = $client->create($payment);
+    } catch (ValidationException $e) {
+        $this->assertInstanceOf(ValidationException::class, $e);
+        $this->assertEquals($e->getErrorCode(), 'RP03');
+        $this->assertEquals($e->getErrorMessage(), 'Callback URL is missing or does not use HTTPS.');
+    }
+
+    $this->assertEquals(422, $container[0]['response']->getStatusCode());
+    $this->assertEquals('/payments', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('PUT', $container[0]['request']->getMethod());
+});
+
+it('throws ClientException', function() {
+    $this->expectException(ClientException::class);
+
+    $mock = new MockHandler([
+        new Response(429, [], null),
+    ]);
+    $stack = HandlerStack::create($mock);
+
+    $client = new Client([], Client::TEST_ENDPOINT, new GuzzleHttpClient([
+        'handler' => $stack,
+        'http_errors' => false,
+        'base_uri' => Client::TEST_ENDPOINT,
+    ]));
+
+    $client->create(new Payment(['id' => 1]));
+});
+
+it('throws ServerException', function () {
+    $this->expectException(ServerException::class);
+
+    $mock = new MockHandler([
+        new Response(500, [], null),
+    ]);
+    $stack = HandlerStack::create($mock);
+
+    $client = new Client([], Client::TEST_ENDPOINT, new GuzzleHttpClient([
+        'handler' => $stack,
+        'http_errors' => false,
+        'base_uri' => Client::TEST_ENDPOINT,
+    ]));
+
+    $client->create(new Payment(['id' => 1]));
+});
+
+it('throws CallbackDecodingException', function() {
+    $this->expectException(CallbackDecodingException::class);
+    Callback::parse('invalid');
 });

@@ -20,13 +20,13 @@ class Callback
         }
 
         try {
-            $data = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+            $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
         } catch (\Throwable $th) {
             throw new CallbackDecodingException('Failed to decode Swish callback', 0, $th);
         }
 
         // If the key 'originalPaymentReference' is set, assume refund
-        if (isset($data->originalPaymentReference)) {
+        if (isset($data['originalPaymentReference'])) {
             return new Refund($data);
         }
 
