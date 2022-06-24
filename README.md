@@ -102,7 +102,7 @@ This package handles the most common Swish-related tasks; retrieve, make and can
 `$client->get(\Olssonm\Swish\Payment $payment);`  
 `$client->create(\Olssonm\Swish\Payment $payment);`  
 `$client->cancel(\Olssonm\Swish\Payment $payment);`  
-`$client->refund(\Olssonm\Swish\Refund $payment);`
+`$client->refund(\Olssonm\Swish\Refund $refund);`
 
 ## Callback
 
