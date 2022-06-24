@@ -2,12 +2,19 @@
 
 namespace Olssonm\Swish\Api;
 
+use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
+use Olssonm\Swish\Exceptions\ClientException;
+use Olssonm\Swish\Exceptions\ServerException;
+use Olssonm\Swish\Exceptions\ValidationException;
 use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
 
+/**
+ * @property \GuzzleHttp\Client $client
+ */
 trait Request
 {
     /**
@@ -31,7 +38,7 @@ trait Request
      */
     public function create(Payment $payment): PaymentResult
     {
-        $response = $this->call('PUT', '/payments', $payment->toArray());
+        $response = $this->call('PUT', '/payments', [], json_encode($payment));
 
         return new PaymentResult([
             'id' => $this->parseId($response),
@@ -48,7 +55,7 @@ trait Request
      */
     public function refund(Refund $refund): RefundResult
     {
-        $response = $this->call('PUT', '/refund', $refund->toArray());
+        $response = $this->call('PUT', '/refund', [], json_encode($refund));
 
         return new RefundResult([
             'id' => $this->parseId($response),
@@ -64,15 +71,12 @@ trait Request
      */
     public function cancel(Payment $payment): Payment
     {
-        $response = $this->call('PATCH', sprintf('/paymentrequests/%s', $payment->id), array_merge([
+        $response = $this->call('PATCH', sprintf('/paymentrequests/%s', $payment->id), [
             'headers' => [
-                'headers' => [
-                    'Content-Type' => 'application/json-patch+json',
-                    'Accept' => 'application/json'
-                ],
+                'Content-Type' => 'application/json-patch+json',
+                'Accept' => 'application/json'
             ],
-            $payment->toArray()
-        ]));
+        ]);
 
         return new Payment(json_decode((string) $response->getBody(), true));
     }
@@ -82,21 +86,41 @@ trait Request
      *
      * @param string $verb
      * @param string $uri
-     * @param array $payload
+     * @param array $headers
+     * @param string|null $payload
      * @return Response
+     * @throws ClientException|ServerException|ValidationException
      */
-    public function call(string $verb, string $uri, array $payload = []): Response
+    public function call(string $verb, string $uri, array $headers = [], $payload = null): Response
     {
-        $response = $this->client->request(
-            $verb,
-            $uri,
-            empty($payload) ? [] : $payload
-        );
+        $request = new Psr7Request($verb, $uri, $headers, $payload);
+        $response = $this->client->send($request);
 
-        $responseBody = (string) $response->getBody();
+        $status = $response->getStatusCode();
+        $level = (int) \floor($status / 100);
 
-        if ($response->getStatusCode() > 299) {
-            // $this->handleRequestError($response);
+        switch (true) {
+            case $status == 403:
+            case $status == 422:
+                throw new ValidationException(
+                    $response->getBody()->getContents(),
+                    $request,
+                    $response
+                );
+                break;
+            case $level == 4:
+                throw new ClientException(
+                    $response->getBody()->getContents(),
+                    $request,
+                    $response
+                );
+            case $level == 5:
+                throw new ServerException(
+                    $response->getBody()->getContents(),
+                    $request,
+                    $response
+                );
+                break;
         }
 
         return $response;
@@ -110,9 +134,6 @@ trait Request
      */
     private function parseId(Response $response)
     {
-        if (preg_match('/\/([^\/]+)$/', $response->getHeaderLine('Location'), $matches) === 1) {
-            return $matches[1];
-        }
-        return null;
+        return pathinfo(parse_url($response->getHeaderLine('Location'), PHP_URL_PATH), PATHINFO_BASENAME);
     }
 }
