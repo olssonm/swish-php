@@ -22,7 +22,7 @@ class Callback
         try {
             $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
         } catch (\Throwable $th) {
-            throw new CallbackDecodingException('Failed to decode Swish callback', 0, $th);
+            throw new CallbackDecodingException('Failed to decode JSON in Swish-callback', 0, $th);
         }
 
         // If the key 'originalPaymentReference' is set, assume refund

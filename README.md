@@ -104,6 +104,24 @@ This package handles the most common Swish-related tasks; retrieve, make and can
 `$client->cancel(\Olssonm\Swish\Payment $payment);`  
 `$client->refund(\Olssonm\Swish\Refund $refund);`
 
+### Exception-handling
+
+When encountering a validation-error an `Olssonm\Swish\Exceptions\ValidationException` will be thrown. The Object will contain both the request, response as well as the `getErrorCode()` and 
+`getErrorMessage()`-helpers.
+
+```php
+try {
+    $response = $client->create($payment);
+} catch (ValidationException $e) {
+    $e->getErrorCode()
+    // AM03
+    $e->getErrorMessage()
+    // Invalid or missing Currency.
+}
+```
+
+For `4xx`-error a `\Olssonm\Swish\Exceptions\ClientException` will be thrown, and for `5xx`-errors `\Olssonm\Swish\Exceptions\ServerException`. Both of these implements Guzzles `BadResponseException` which makes the request- and response-objects available if needed.
+
 ## Callback
 
 Swish recommends to not use the `payments`-endpoint to get the status of a payment or refund (even if they themselves use it in their examples...), but instead use callbacks.
