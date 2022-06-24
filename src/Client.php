@@ -6,7 +6,6 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use Olssonm\Swish\Api\Request;
 
 /**

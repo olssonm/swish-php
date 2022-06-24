@@ -60,20 +60,20 @@ it('can fetch payment', function() {
     $mock = new MockHandler([
         new Response(200, [],
             '{
-                "id":"5D59DA1B1632424E874DDB219AD54597",
-                "payeePaymentReference":"0123456789",
-                "paymentReference":"1E2FC19E5E5E4E18916609B7F8911C12",
-                "callbackUrl":"https://example.com/api/swishcb/paymentrequests",
-                "payerAlias":"4671234768",
-                "payeeAlias":"1231181189",
-                "amount":100.00,
-                "currency":"SEK",
-                "message":"Kingston USB Flash Drive 8 GB",
-                "status":"PAID",
-                "dateCreated":"2019-01-02T14:29:51.092Z",
-                "datePaid":"2019-01-02T14:29:55.093Z",
-                "errorCode":null,
-                "errorMessage":""
+                "id": "5D59DA1B1632424E874DDB219AD54597",
+                "payeePaymentReference": "0123456789",
+                "paymentReference": "1E2FC19E5E5E4E18916609B7F8911C12",
+                "callbackUrl": "https://example.com/api/swishcb/paymentrequests",
+                "payerAlias": "4671234768",
+                "payeeAlias": "1231181189",
+                "amount": 100.00,
+                "currency": "SEK",
+                "message": "Kingston USB Flash Drive 8 GB",
+                "status": "PAID",
+                "dateCreated": "2019-01-02T14:29:51.092Z",
+                "datePaid": "2019-01-02T14:29:55.093Z",
+                "errorCode": null,
+                "errorMessage": ""
             }'),
     ]);
     $stack = HandlerStack::create($mock);
@@ -170,4 +170,43 @@ it('can make refund', function() {
 });
 
 it('can make cancel payment request', function () {
+    $payment = new Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']);
+
+    $container = [];
+    $mock = new MockHandler([
+        new Response(200, [],
+            '{
+                "id":"5D59DA1B1632424E874DDB219AD54597",
+                "payeePaymentReference":"0123456789",
+                "paymentReference":"1E2FC19E5E5E4E18916609B7F8911C12",
+                "callbackUrl": "https://example.com/api/swishcb/paymentrequests",
+                "payerAlias":"4671234768",
+                "payeeAlias":"1231181189",
+                "amount":100.00,
+                "currency":"SEK",
+                "message":"Kingston USB Flash Drive 8 GB",
+                "status":"CANCELLED",
+                "dateCreated":"2019-04-11T09:58:51.092Z",
+                "datePaid":null
+            }'),
+    ]);
+    $stack = HandlerStack::create($mock);
+    $stack->push(Middleware::history($container));
+
+    $client = new Client([], Client::TEST_ENDPOINT, new GuzzleHttpClient([
+        'handler' => $stack,
+        'http_errors' => false,
+        'base_uri' => Client::TEST_ENDPOINT,
+    ]));
+
+    $response = $client->cancel($payment);
+
+    $this->assertEquals(200, $container[0]['response']->getStatusCode());
+    $this->assertEquals('/paymentrequests/5D59DA1B1632424E874DDB219AD54597', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('PATCH', $container[0]['request']->getMethod());
+
+    $this->assertInstanceOf(Payment::class, $response);
+
+    $this->assertEquals('5D59DA1B1632424E874DDB219AD54597', $response->id);
+    $this->assertEquals('CANCELLED', $response->status);
 });
