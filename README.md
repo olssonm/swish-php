@@ -14,7 +14,7 @@ You will need to have access to your Swish-certificates to use this package in p
 
 Certificates and documentation for testing is available here. A quick rundown on using/creating Swish-certificates [is available here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
 
-When creating the client you will have to set wich environemnt you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/v2`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
+When creating the client you will have to set which environment you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/v2`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
 
 ``` php
 $certificates = [
@@ -154,4 +154,4 @@ class SwishController
 }
 ```
 
-*Note: in a real world scenario you probably want to use seperate callback-urls for your refunds and payments to prevent unnecessary parsing as the example above* 
+*Note: in a real world scenario you probably want to use separate callback-urls for your refunds and payments to prevent unnecessary parsing as the example above* 
