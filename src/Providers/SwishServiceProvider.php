@@ -22,7 +22,7 @@ class SwishServiceProvider extends ServiceProvider
      */
     public function __construct($app)
     {
-        $this->config = __DIR__ . '/../../config.php';
+        $this->config = __DIR__ . '/../config.php';
 
         parent::__construct($app);
     }
