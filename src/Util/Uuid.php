@@ -27,7 +27,7 @@ class Uuid
     {
         $parts = explode('-', $uuid);
         if (count($parts) == 1) {
-            $default = function($uuid) {
+            $default = function ($uuid) {
                 $uuid = implode('-', sscanf($uuid, '%8s%4s%4s%4s%12s'));
                 return $uuid;
             };

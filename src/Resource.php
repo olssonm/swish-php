@@ -18,7 +18,7 @@ class Resource implements \ArrayAccess, \Countable, \JsonSerializable
     {
         if (in_array($key, ['id', 'instructionUUID'])) {
             if (!Uuid::validate($value)) {
-                throw new InvalidUuidException;
+                throw new InvalidUuidException();
             }
         }
 

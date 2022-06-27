@@ -11,6 +11,7 @@ use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
+use Olssonm\Swish\Util\Id;
 
 /**
  * @property \GuzzleHttp\Client $client
@@ -41,7 +42,7 @@ trait Request
         $response = $this->call('PUT', sprintf('paymentrequests/%s', $payment->id), [], json_encode($payment));
 
         return new PaymentResult([
-            'id' => $this->parseId($response),
+            'id' => Id::parse($response),
             'location' => $response->getHeaderLine('Location') ?? null,
             'paymentRequestToken' => $response->getHeaderLine('PaymentRequestToken') ??  null,
         ]);
@@ -58,7 +59,7 @@ trait Request
         $response = $this->call('PUT', 'refund', [], json_encode($refund));
 
         return new RefundResult([
-            'id' => $this->parseId($response),
+            'id' => Id::parse($response),
             'location' => $response->getHeaderLine('Location') ?? null
         ]);
     }
@@ -124,16 +125,5 @@ trait Request
         }
 
         return $response;
-    }
-
-    /**
-     * Parse the ID from the response's Location-header.
-     *
-     * @param Response $response
-     * @return mixed
-     */
-    private function parseId(Response $response)
-    {
-        return pathinfo(parse_url($response->getHeaderLine('Location'), PHP_URL_PATH), PATHINFO_BASENAME);
     }
 }
