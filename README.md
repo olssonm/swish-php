@@ -1,5 +1,10 @@
 # Swish PHP
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/ampersand.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
+[![Build Status](https://img.shields.io/github/workflow/status/olssonm/swish-php/Run%20tests.svg?style=flat-square&label=tests)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Supported PHP-versions](https://img.shields.io/packagist/php-v/olssonm/swish-php?style=flat-square)](https://packagist.org/packages/olssonm/ampersand)
+
 Simple and easy to use Swish-wrapper for PHP. Also includes providers and facades for easy usage with Laravel.
 
 ## Installation
@@ -43,6 +48,8 @@ return [
     'endpoint' => \Olssonm\Swish\Client::PRODUCTION_ENDPOINT,
 ];
 ```
+
+This may also be a good place to keep you payee-alias and such, which you can then access with `config('swish.payee_alias)` etc.
 
 ## Usage
 
@@ -173,3 +180,9 @@ class SwishController
 ```
 
 *Note: in a real world scenario you probably want to use separate callback-urls for your refunds and payments to prevent unnecessary parsing as the example above* 
+
+## License
+
+The MIT License (MIT). Please see the [LICENSE.md](LICENSE.md) for more information.
+
+© 2022 [Marcus Olsson](https://marcusolsson.me).
