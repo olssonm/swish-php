@@ -7,6 +7,6 @@ namespace Olssonm\Swish;
  * @property string $location URL/location for the payment
  * @property string $paymentRequestToken
  */
-class PaymentResult extends SwishObject
+class PaymentResult extends Resource
 {
 }

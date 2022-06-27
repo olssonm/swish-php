@@ -2,6 +2,8 @@
 
 namespace Olssonm\Swish;
 
+use Olssonm\Swish\Util\Uuid;
+
 /**
  * @property string id
  * @property string originalPaymentReference
@@ -19,7 +21,11 @@ namespace Olssonm\Swish;
  * @property string errorMessage
  * @property string additionalInformation
  */
-class Refund extends SwishObject
+class Refund extends Resource
 {
-    //
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->id = $this->id ?? Uuid::make();
+    }
 }

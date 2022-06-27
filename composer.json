@@ -12,7 +12,8 @@
     ],
     "require": {
         "php": "^7.4|^8.0",
-        "guzzlehttp/guzzle": "^6.3.1|^7.0"
+        "guzzlehttp/guzzle": "^6.3.1|^7.0",
+        "ramsey/uuid": "^4.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.3 || ^9.3",
@@ -42,7 +43,7 @@
         },
         "laravel": {
             "providers": [
-                "Olssonm\\Swish\\SwishServiceProvider"
+                "Olssonm\\Swish\\Providers\\SwishServiceProvider"
             ],
             "aliases": {
                 "Swish": "Olssonm\\Swish\\Facades\\Swish"

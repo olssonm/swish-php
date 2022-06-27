@@ -2,6 +2,10 @@
 
 namespace Olssonm\Swish;
 
+use Olssonm\Swish\Exceptions\InvalidUuidException;
+use Olssonm\Swish\Util\Uuid;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
+
 /**
  * @property string $id
  * @property string $payeePaymentReference
@@ -19,6 +23,11 @@ namespace Olssonm\Swish;
  * @property string $errorMessage
  * @property string $additionalInformation
  */
-class Payment extends SwishObject
+class Payment extends Resource
 {
+    public function __construct($attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->id = $this->id ?? Uuid::make();
+    }
 }

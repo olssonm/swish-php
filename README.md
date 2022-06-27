@@ -29,7 +29,7 @@ $client = new Client($certificates, $endpoint = Client::TEST_ENDPOINT)
 With the Laravel service provider and facades you can work with the package more eloquently. Just require the package and publish the configuration:
 
 ```
-php artisan vendor:public --provider="\Olssonm\Swish\Providers\SwishServiceProvider"
+php artisan vendor:publish --provider="Olssonm\Swish\Providers\SwishServiceProvider"
 ```
 
 In `/config/swish.php` you can then set your details accordingly:
@@ -94,6 +94,24 @@ $response = Swish::create(new Payment([
     'message' => 'My product',
 ]));
 ```
+
+### IDs/UUIDs
+
+This package uses the v2 of the Swish API where a UUID is set by the merchant. This package handles all these aspects automatically as needed, you may however choose to manually set the ID/instructionUUID (either in Swish's own format, or a default v4-format):
+
+``` php
+$id = 'EBB5C73503084E3C9AEA8A270AEBFE15';
+// or
+$id = 'ebb5c735-0308-4e3c-9aea-8a270aebfe15';
+
+$payment = new Payment([
+    'id' => $id
+]);
+```
+
+If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` will be thrown.
+
+*Note:* This package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC1422 (v4) UUIDs. 
 
 ### Available methods
 
