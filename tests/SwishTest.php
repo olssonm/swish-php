@@ -9,6 +9,7 @@ use Olssonm\Swish\Callback;
 use Olssonm\Swish\Client;
 use Olssonm\Swish\Exceptions\CallbackDecodingException;
 use Olssonm\Swish\Exceptions\ClientException;
+use Olssonm\Swish\Exceptions\InvalidUuidException;
 use Olssonm\Swish\Exceptions\ServerException;
 use Olssonm\Swish\Exceptions\ValidationException;
 use Olssonm\Swish\Payment;
@@ -16,7 +17,15 @@ use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Providers\SwishServiceProvider;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
-use Olssonm\Swish\SwishObject;
+use Olssonm\Swish\Resource;
+use Olssonm\Swish\Util\Uuid;
+
+beforeEach(function () {
+    $this->certificate = [
+        __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.p12',
+        'swish'
+    ];
+});
 
 it('loads package', function () {
     $providers = $this->app->getLoadedProviders();
@@ -28,44 +37,70 @@ it('loads facade', function () {
     $this->assertTrue(is_a($facade, Client::class));
 });
 
-it('can work with Payment-object', function() {
-    $payment = new Payment();
-    $payment->id = 123;
+it('can generate uuids', function () {
+    $SwishUuid = Uuid::make();
+    $this->assertEquals(32, strlen($SwishUuid));
 
-    $this->assertEquals(123, $payment->id);
-    $this->assertEquals(['id' => 123], $payment->toArray());
-    $this->assertEquals('{"id":123}', json_encode($payment));
+    $defaultUuid = Uuid::make(Uuid::DEFAULT);
+    $this->assertEquals(36, strlen($defaultUuid));
+});
+
+it('can validate uuids', function () {
+    $SwishUuid = Uuid::make();
+    $this->assertTrue(Uuid::validate($SwishUuid));
+
+    $defaultUuid = Uuid::make(Uuid::DEFAULT);
+    $this->assertTrue(Uuid::validate($defaultUuid));
+
+    $fakeUuid = 'abc123';
+    $this->assertFalse(Uuid::validate($fakeUuid));
+});
+
+it('can work with Payment-object', function() {
+    $id = UUID::make();
+    $payment = new Payment([
+        'id' => $id
+    ]);
+
+    $this->assertEquals($id, $payment->id);
+    $this->assertEquals(['id' => $id], $payment->toArray());
+    $this->assertEquals('{"id":"' . $id . '"}', json_encode($payment));
 });
 
 it('can work with Refund-object', function () {
-    $payment = new Refund();
-    $payment->id = 456;
+    $id = UUID::make();
+    $refund = new Refund([
+        'id' => $id
+    ]);
 
-    $this->assertEquals(456, $payment->id);
-    $this->assertEquals(['id' => 456], $payment->toArray());
-    $this->assertEquals('{"id":456}', json_encode($payment));
+    $this->assertEquals($id, $refund->id);
+    $this->assertEquals(['id' => $id], $refund->toArray());
+    $this->assertEquals('{"id":"' . $id . '"}', json_encode($refund));
 });
 
-it('can work with generic SwishObject', function() {
-    $swishObject = new SwishObject([0 => 'foo', 1 => 'bar']);
-    $swishObject->offsetSet(0, 'test');
-    $swishObject->offsetUnset(1);
+it('can work with generic Resource', function() {
+    $resource = new Resource([0 => 'foo', 1 => 'bar']);
+    $resource->offsetSet(0, 'test');
+    $resource->offsetUnset(1);
 
-    $this->assertTrue($swishObject->offsetExists(0));
-    $this->assertTrue(isset($swishObject[0]));
-    $this->assertFalse(isset($swishObject[1]));
-    $this->assertEquals(1, count($swishObject));
-    $this->assertEquals('test', $swishObject->offsetGet(0));
+    $this->assertTrue($resource->offsetExists(0));
+    $this->assertTrue(isset($resource[0]));
+    $this->assertFalse(isset($resource[1]));
+    $this->assertEquals(1, count($resource));
+    $this->assertEquals('test', $resource->offsetGet(0));
 });
 
 it('can fetch payment', function() {
-    $payment = new Payment(['id' => 123]);
+    $id = UUID::make();
+    $payment = new Payment([
+        'id' => $id
+    ]);
 
     $container = [];
     $mock = new MockHandler([
         new Response(200, [],
             '{
-                "id": "5D59DA1B1632424E874DDB219AD54597",
+                "id": "' . $id . '",
                 "payeePaymentReference": "0123456789",
                 "paymentReference": "1E2FC19E5E5E4E18916609B7F8911C12",
                 "callbackUrl": "https://example.com/api/swishcb/paymentrequests",
@@ -84,27 +119,35 @@ it('can fetch payment', function() {
     $stack = HandlerStack::create($mock);
     $stack->push(Middleware::history($container));
 
-    $client = new Client([], Client::TEST_ENDPOINT, new GuzzleHttpClient([
+    $client = new Client($this->certificate, Client::TEST_ENDPOINT, new GuzzleHttpClient([
         'handler' => $stack,
         'http_errors' => false,
+        'curl' => [
+            CURLOPT_TCP_KEEPALIVE => 1,
+            CURLOPT_TCP_KEEPIDLE => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_CONNECTTIMEOUT => 20,
+            'cert' => $this->certificate
+        ],
         'base_uri' => Client::TEST_ENDPOINT,
     ]));
 
     $response = $client->get($payment);
 
     $this->assertEquals(200, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/payments/123', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v2/payments/' . $payment->id, $container[0]['request']->getUri()->getPath());
     $this->assertEquals('GET', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(Payment::class, $response);
 
     $this->assertEquals('PAID', $response->status);
-    $this->assertEquals('5D59DA1B1632424E874DDB219AD54597', $response->id);
+    $this->assertEquals($id, $response->id);
 });
 
 it('can make payment', function() {
+    $id = UUID::make();
     $payment = new Payment();
-    $payment->id = 123;
+    $payment->id = $id;
     $payment->amount = 100;
     $payment->currency = 'SEK';
     $payment->payee = '123456789';
@@ -112,7 +155,7 @@ it('can make payment', function() {
     $container = [];
     $mock = new MockHandler([
         new Response(201, [
-            'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/11A86BE70EA346E4B1C39C874173F088',
+            'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/'. $id,
             'paymentrequesttoken' => 'my-token',
         ], null),
     ]);
@@ -128,19 +171,20 @@ it('can make payment', function() {
     $response = $client->create($payment);
 
     $this->assertEquals(201, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/payments', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v2/paymentrequests/' . $id, $container[0]['request']->getUri()->getPath());
     $this->assertEquals('PUT', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(PaymentResult::class, $response);
 
-    $this->assertEquals('https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/11A86BE70EA346E4B1C39C874173F088', $response->location);
-    $this->assertEquals('11A86BE70EA346E4B1C39C874173F088', $response->id);
+    $this->assertEquals('https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id, $response->location);
+    $this->assertEquals($id, $response->id);
     $this->assertEquals('my-token', $response->paymentRequestToken);
 });
 
 it('can make refund', function() {
+    $id = Uuid::make();
     $refund = new Refund;
-    $refund->id = 123;
+    $refund->id = $id;
     $refund->amount = 100;
     $refund->currency = 'SEK';
     $refund->payerAlias = '1231181189';
@@ -149,7 +193,7 @@ it('can make refund', function() {
     $container = [];
     $mock = new MockHandler([
         new Response(201, [
-            'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/11A86BE70EA346E4B1C39C874173F088',
+            'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id,
             'paymentrequesttoken' => 'my-token',
         ], null),
     ]);
@@ -165,13 +209,13 @@ it('can make refund', function() {
     $response = $client->refund($refund);
 
     $this->assertEquals(201, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/refund', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v2/refund', $container[0]['request']->getUri()->getPath());
     $this->assertEquals('PUT', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(RefundResult::class, $response);
 
-    $this->assertEquals('https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/11A86BE70EA346E4B1C39C874173F088', $response->location);
-    $this->assertEquals('11A86BE70EA346E4B1C39C874173F088', $response->id);
+    $this->assertEquals('https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id, $response->location);
+    $this->assertEquals($id, $response->id);
 });
 
 it('can make cancel payment request', function () {
@@ -207,7 +251,7 @@ it('can make cancel payment request', function () {
     $response = $client->cancel($payment);
 
     $this->assertEquals(200, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/paymentrequests/5D59DA1B1632424E874DDB219AD54597', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v2/paymentrequests/5D59DA1B1632424E874DDB219AD54597', $container[0]['request']->getUri()->getPath());
     $this->assertEquals('PATCH', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(Payment::class, $response);
@@ -258,9 +302,14 @@ it('can handle callback', function() {
     $this->assertEquals('136A8AA7052F42CCB8563C78AB54C66B', $refund->id);
 });
 
+it('throws InvalidUuidException', function () {
+    $this->expectException(InvalidUuidException::class);
+    new Payment(['id' => 'invalid-uuid']);
+});
+
 it('throws ValidationException', function () {
     $payment = new Payment();
-    $payment->id = 123;
+    $payment->id = '5D59DA1B1632424E874DDB219AD54597';
     $payment->amount = 100;
     $payment->currency = 'SEK';
     $payment->payee = '123456789';
@@ -302,7 +351,7 @@ it('throws ValidationException', function () {
     }
 
     $this->assertEquals(422, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/payments', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v2/paymentrequests/5D59DA1B1632424E874DDB219AD54597', $container[0]['request']->getUri()->getPath());
     $this->assertEquals('PUT', $container[0]['request']->getMethod());
 });
 
@@ -320,7 +369,7 @@ it('throws ClientException', function() {
         'base_uri' => Client::TEST_ENDPOINT,
     ]));
 
-    $client->create(new Payment(['id' => 1]));
+    $client->create(new Payment());
 });
 
 it('throws ServerException', function () {
@@ -337,7 +386,7 @@ it('throws ServerException', function () {
         'base_uri' => Client::TEST_ENDPOINT,
     ]));
 
-    $client->create(new Payment(['id' => 1]));
+    $client->create(new Payment());
 });
 
 it('throws CallbackDecodingException', function() {
