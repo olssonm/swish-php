@@ -19,20 +19,20 @@ class Client
 
     protected string $endpoint;
 
-    public const PRODUCTION_ENDPOINT = 'https://cpc.getswish.net/swish-cpcapi/api/v2';
+    public const PRODUCTION_ENDPOINT = 'https://cpc.getswish.net/swish-cpcapi/api/v2/';
 
-    public const TEST_ENDPOINT = 'https://mss.cpc.getswish.net/swish-cpcapi/api/v2';
+    public const TEST_ENDPOINT = 'https://mss.cpc.getswish.net/swish-cpcapi/api/v2/';
 
     public function __construct(
-        array $certificates,
+        array $certificate,
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ) {
-        $this->setup($certificates, $endpoint, $client);
+        $this->setup($certificate, $endpoint, $client);
     }
 
     public function setup(
-        array $certificates,
+        array $certificate,
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ): void {
@@ -47,13 +47,11 @@ class Client
                 CURLOPT_TCP_KEEPIDLE => 10,
                 CURLOPT_TIMEOUT => 0,
                 CURLOPT_CONNECTTIMEOUT => 20,
-                'cert' => $certificates ?? null,
             ],
+            'verify' => true,
+            'cert' => $certificate,
             'base_uri' => $endpoint,
             'http_errors' => false,
-            'headers' => [
-                'Accept-Encoding' => 'gzip'
-            ],
         ]);
     }
 }

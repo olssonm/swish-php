@@ -25,7 +25,7 @@ trait Request
      */
     public function get(Payment $payment): Payment
     {
-        $response = $this->call('GET', sprintf('/payments/%s', $payment->id));
+        $response = $this->call('GET', sprintf('payments/%s', $payment->id));
 
         return new Payment(json_decode((string) $response->getBody(), true));
     }
@@ -38,7 +38,7 @@ trait Request
      */
     public function create(Payment $payment): PaymentResult
     {
-        $response = $this->call('PUT', '/payments', [], json_encode($payment));
+        $response = $this->call('PUT', sprintf('paymentrequests/%s', $payment->id), [], json_encode($payment));
 
         return new PaymentResult([
             'id' => $this->parseId($response),
@@ -55,7 +55,7 @@ trait Request
      */
     public function refund(Refund $refund): RefundResult
     {
-        $response = $this->call('PUT', '/refund', [], json_encode($refund));
+        $response = $this->call('PUT', 'refund', [], json_encode($refund));
 
         return new RefundResult([
             'id' => $this->parseId($response),
@@ -71,7 +71,7 @@ trait Request
      */
     public function cancel(Payment $payment): Payment
     {
-        $response = $this->call('PATCH', sprintf('/paymentrequests/%s', $payment->id), [
+        $response = $this->call('PATCH', sprintf('paymentrequests/%s', $payment->id), [
             'headers' => [
                 'Content-Type' => 'application/json-patch+json',
                 'Accept' => 'application/json'
