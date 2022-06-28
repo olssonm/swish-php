@@ -115,6 +115,7 @@ trait Request
 
         switch (true) {
             case $status == 403:
+                // No break
             case $status == 422:
                 $this->triggerException(
                     ValidationException::class,
@@ -122,6 +123,7 @@ trait Request
                     $request,
                     $response
                 );
+                // No break
             case $level == 4:
                 $this->triggerException(
                     ClientException::class,
@@ -129,6 +131,7 @@ trait Request
                     $request,
                     $response
                 );
+                // No break
             case $level == 5:
                 $this->triggerException(
                     ServerException::class,
