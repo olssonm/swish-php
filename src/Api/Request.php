@@ -155,7 +155,7 @@ trait Request
         string $label,
         RequestInterface $request,
         ResponseInterface $response
-    ): RequestException {
+    ): void {
         $message = \sprintf(
             '%s: `%s %s` resulted in a `%s %s` response',
             $label,
@@ -165,7 +165,7 @@ trait Request
             $response->getReasonPhrase()
         );
 
-        return throw new $class(
+        throw new $class(
             $message,
             $request,
             $response
