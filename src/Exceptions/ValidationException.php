@@ -3,14 +3,13 @@
 namespace Olssonm\Swish\Exceptions;
 
 use GuzzleHttp\Exception\RequestException;
+use Olssonm\Swish\Error;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class ValidationException extends RequestException
 {
-    private $errorCode;
-
-    private $errorMessage;
+    private array $errors = [];
 
     public function __construct(
         string $message,
@@ -20,19 +19,26 @@ class ValidationException extends RequestException
         array $handlerContext = []
     ) {
 
-        $this->errorCode = json_decode((string) $response->getBody())->errorCode;
-        $this->errorMessage = json_decode((string) $response->getBody())->errorMessage;
+        $data = json_decode((string) $response->getBody()->getContents());
+
+        if (is_array($data)) {
+            foreach ($data as $error) {
+                $this->errors[] = new Error((array) $error);
+            }
+        } else {
+            $this->errors[] = new Error([
+                'errorCode' => $data->errorCode,
+                'errorMessage' => $data->errorMessage,
+                'additionalInformation' => $data->additionalInformation ?? null,
+            ]);
+        }
 
         parent::__construct($message, $request, $response, $previous, $handlerContext);
     }
 
-    public function getErrorCode()
+    public function getErrors(): array
     {
-        return $this->errorCode;
-    }
 
-    public function getErrorMessage()
-    {
-        return $this->errorMessage;
+        return $this->errors;
     }
 }

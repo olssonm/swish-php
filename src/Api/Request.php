@@ -2,6 +2,7 @@
 
 namespace Olssonm\Swish\Api;
 
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use Olssonm\Swish\Exceptions\ClientException;
@@ -12,6 +13,8 @@ use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
 use Olssonm\Swish\Util\Id;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * @property \GuzzleHttp\Client $client
@@ -26,7 +29,7 @@ trait Request
      */
     public function get(Payment $payment): Payment
     {
-        $response = $this->call('GET', sprintf('payments/%s', $payment->id));
+        $response = $this->call('GET', sprintf('v1/paymentrequests/%s', $payment->id));
 
         return new Payment(json_decode((string) $response->getBody(), true));
     }
@@ -39,7 +42,7 @@ trait Request
      */
     public function create(Payment $payment): PaymentResult
     {
-        $response = $this->call('PUT', sprintf('paymentrequests/%s', $payment->id), [], json_encode($payment));
+        $response = $this->call('PUT', sprintf('v2/paymentrequests/%s', $payment->id), [], json_encode($payment));
 
         return new PaymentResult([
             'id' => Id::parse($response),
@@ -56,7 +59,7 @@ trait Request
      */
     public function refund(Refund $refund): RefundResult
     {
-        $response = $this->call('PUT', 'refund', [], json_encode($refund));
+        $response = $this->call('PUT', 'v2/refunds', [], json_encode($refund));
 
         return new RefundResult([
             'id' => Id::parse($response),
@@ -72,12 +75,13 @@ trait Request
      */
     public function cancel(Payment $payment): Payment
     {
-        $response = $this->call('PATCH', sprintf('paymentrequests/%s', $payment->id), [
-            'headers' => [
-                'Content-Type' => 'application/json-patch+json',
-                'Accept' => 'application/json'
-            ],
-        ]);
+        $response = $this->call('PATCH', sprintf('v1/paymentrequests/%s', $payment->id), [
+            'Content-Type' => 'application/json-patch+json'
+        ], json_encode([[
+            'op' => 'replace',
+            'path' => '/status',
+            'value' => 'cancelled',
+        ]]));
 
         return new Payment(json_decode((string) $response->getBody(), true));
     }
@@ -94,7 +98,16 @@ trait Request
      */
     public function call(string $verb, string $uri, array $headers = [], $payload = null): Response
     {
-        $request = new Psr7Request($verb, $uri, $headers, $payload);
+        $request = new Psr7Request(
+            $verb,
+            $uri,
+            array_merge([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ], $headers),
+            $payload
+        );
+
         $response = $this->client->send($request);
 
         $status = $response->getStatusCode();
@@ -103,27 +116,59 @@ trait Request
         switch (true) {
             case $status == 403:
             case $status == 422:
-                throw new ValidationException(
-                    $response->getBody()->getContents(),
+                $this->triggerException(
+                    ValidationException::class,
+                    'Validation error',
                     $request,
                     $response
                 );
-                break;
             case $level == 4:
-                throw new ClientException(
-                    $response->getBody()->getContents(),
+                $this->triggerException(
+                    ClientException::class,
+                    'Client error',
                     $request,
                     $response
                 );
             case $level == 5:
-                throw new ServerException(
-                    $response->getBody()->getContents(),
+                $this->triggerException(
+                    ServerException::class,
+                    'Server error',
                     $request,
                     $response
                 );
-                break;
         }
 
         return $response;
+    }
+
+    /**
+     * Trigger a request exception
+     *
+     * @param string $class
+     * @param string $label
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @return RequestException
+     */
+    private function triggerException(
+        string $class,
+        string $label,
+        RequestInterface $request,
+        ResponseInterface $response
+    ): RequestException {
+        $message = \sprintf(
+            '%s: `%s %s` resulted in a `%s %s` response',
+            $label,
+            $request->getMethod(),
+            $request->getUri()->__toString(),
+            $response->getStatusCode(),
+            $response->getReasonPhrase()
+        );
+
+        return throw new $class(
+            $message,
+            $request,
+            $response
+        );
     }
 }
