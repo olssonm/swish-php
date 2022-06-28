@@ -2,9 +2,7 @@
 
 namespace Olssonm\Swish;
 
-use Olssonm\Swish\Exceptions\InvalidUuidException;
 use Olssonm\Swish\Util\Uuid;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * @property string $id

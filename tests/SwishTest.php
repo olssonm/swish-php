@@ -135,7 +135,7 @@ it('can fetch payment', function() {
     $response = $client->get($payment);
 
     $this->assertEquals(200, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/swish-cpcapi/api/v2/payments/' . $payment->id, $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v1/paymentrequests/' . $payment->id, $container[0]['request']->getUri()->getPath());
     $this->assertEquals('GET', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(Payment::class, $response);
@@ -151,6 +151,8 @@ it('can make payment', function() {
     $payment->amount = 100;
     $payment->currency = 'SEK';
     $payment->payee = '123456789';
+    $payment->payeeAlias = '1234679304';
+    $payment->callbackUrl = 'https://example.com';
 
     $container = [];
     $mock = new MockHandler([
@@ -209,7 +211,7 @@ it('can make refund', function() {
     $response = $client->refund($refund);
 
     $this->assertEquals(201, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/swish-cpcapi/api/v2/refund', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v2/refunds', $container[0]['request']->getUri()->getPath());
     $this->assertEquals('PUT', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(RefundResult::class, $response);
@@ -251,7 +253,7 @@ it('can make cancel payment request', function () {
     $response = $client->cancel($payment);
 
     $this->assertEquals(200, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/swish-cpcapi/api/v2/paymentrequests/5D59DA1B1632424E874DDB219AD54597', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v1/paymentrequests/5D59DA1B1632424E874DDB219AD54597', $container[0]['request']->getUri()->getPath());
     $this->assertEquals('PATCH', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(Payment::class, $response);
@@ -346,8 +348,8 @@ it('throws ValidationException', function () {
         $response = $client->create($payment);
     } catch (ValidationException $e) {
         $this->assertInstanceOf(ValidationException::class, $e);
-        $this->assertEquals($e->getErrorCode(), 'RP03');
-        $this->assertEquals($e->getErrorMessage(), 'Callback URL is missing or does not use HTTPS.');
+        $this->assertEquals($e->getErrors()[0]->errorCode, 'RP03');
+        $this->assertEquals($e->getErrors()[0]->errorMessage, 'Callback URL is missing or does not use HTTPS.');
     }
 
     $this->assertEquals(422, $container[0]['response']->getStatusCode());
@@ -381,6 +383,10 @@ it('throws ServerException', function () {
     $stack = HandlerStack::create($mock);
 
     $client = new Client([], Client::TEST_ENDPOINT, new GuzzleHttpClient([
+        'cert' => [
+            __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.p12',
+            'swish'
+        ],
         'handler' => $stack,
         'http_errors' => false,
         'base_uri' => Client::TEST_ENDPOINT,

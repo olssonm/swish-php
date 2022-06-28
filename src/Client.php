@@ -19,9 +19,9 @@ class Client
 
     protected string $endpoint;
 
-    public const PRODUCTION_ENDPOINT = 'https://cpc.getswish.net/swish-cpcapi/api/v2/';
+    public const PRODUCTION_ENDPOINT = 'https://cpc.getswish.net/swish-cpcapi/api/';
 
-    public const TEST_ENDPOINT = 'https://mss.cpc.getswish.net/swish-cpcapi/api/v2/';
+    public const TEST_ENDPOINT = 'https://mss.cpc.getswish.net/swish-cpcapi/api/';
 
     public function __construct(
         array $certificate,
