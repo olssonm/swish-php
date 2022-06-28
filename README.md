@@ -1,5 +1,6 @@
 # Swish PHP
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/swish-php.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Supported PHP-versions](https://img.shields.io/packagist/php-v/olssonm/swish-php?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/swish-php.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Build Status](https://img.shields.io/github/workflow/status/olssonm/swish-php/Run%20tests.svg?style=flat-square&label=tests)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
@@ -15,13 +16,15 @@ composer require olssonm/swish-php
 
 ## Setup
 
-You will need to have access to your Swish-certificates to use this package in production. You can however use their testing/MSS-environment without being a Swish-customer during development.
+You will need to have access to your Swish-certificates to use this package in production. You can however use their testing/Merchant Swish Similator-environment without being a Swish-customer during development.
 
-Certificates and documentation for testing is available here. A quick rundown on using/creating Swish-certificates [is available here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
+Read more about testing in their MSS-environment in their [official documentation](https://developer.swish.nu/documentation/environments#:~:text=the%20certificate%20again.-,Merchant%20Swish%20Simulator,-The%20Swish%20server). A quick rundown on using/creating Swish-certificates [is published here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
 
 When creating the client you will have to set which environment you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/v2`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
 
 ``` php
+use Olssonm\Swish\Client;
+
 $certificates = [
     '/path/to/my/certificate.p12',
     'my-certificate-password'
@@ -118,7 +121,8 @@ $payment = new Payment([
 
 If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` will be thrown.
 
-*Note:* This package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC1422 (v4) UUIDs. 
+*Note 1:* Wheter you set a default UUID or one in the Swish-format – it will <u>always</u> be formatted for Swish automatically.  
+*Note 2:* This package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC4122 (v4) UUIDs on the fly. Swish accepts V1, 3, 4 and 5 UUIDs.
 
 ### Available methods
 
@@ -129,6 +133,8 @@ This package handles the most common Swish-related tasks; retrieve, make and can
 `$client->cancel(\Olssonm\Swish\Payment $payment);`  
 `$client->refund(\Olssonm\Swish\Refund $refund);`
 
+`$client->call();` is also available if you wish to implement custom logic.
+
 ### Exception-handling
 
 When encountering a validation-error an `Olssonm\Swish\Exceptions\ValidationException` will be thrown. The Object will contain both the request, response as well as the `getErrorCode()` and 
@@ -137,11 +143,14 @@ When encountering a validation-error an `Olssonm\Swish\Exceptions\ValidationExce
 ```php
 try {
     $response = $client->create($payment);
-} catch (ValidationException $e) {
-    $e->getErrorCode()
-    // AM03
-    $e->getErrorMessage()
-    // Invalid or missing Currency.
+} catch (ValidationException $exception) {
+    $errors = $exception->getErrors();
+    foreach ($errors as $error) {
+        $error->errorCode;
+        // AM03
+        $error->errorMessage;
+        // Invalid or missing Currency.
+    }
 }
 ```
 
@@ -149,7 +158,7 @@ For `4xx`-error a `\Olssonm\Swish\Exceptions\ClientException` will be thrown, an
 
 ## Callback
 
-Swish recommends to not use the `payments`-endpoint to get the status of a payment or refund (even if they themselves use it in their examples...), but instead use callbacks.
+Swish recommends to not use the `payments`-endpoint to get the status of a payment or refund (even if they themselves use it in some of their examples...), but instead use callbacks.
 
 This package includes a simple helper to retrieve a `Payment` or `Refund` object from a callback that will contain all data from Swish:
 
@@ -183,6 +192,6 @@ class SwishController
 
 ## License
 
-The MIT License (MIT). Please see the [LICENSE.md](LICENSE.md) for more information.
+The MIT License (MIT). Please see the [LICENSE](LICENSE) for more information.
 
 © 2022 [Marcus Olsson](https://marcusolsson.me).
