@@ -6,8 +6,10 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use Olssonm\Swish\Api\Payments;
 use Olssonm\Swish\Api\Refunds;
+use InvalidArgumentException;
 
 /**
  * @mixin \Olssonm\Swish\Api\Payments
@@ -16,6 +18,8 @@ use Olssonm\Swish\Api\Refunds;
 class Client
 {
     protected string $endpoint;
+
+    protected array $history = [];
 
     public const PRODUCTION_ENDPOINT = 'https://cpc.getswish.net/swish-cpcapi/api/';
 
@@ -39,6 +43,7 @@ class Client
 
         $handler = new HandlerStack();
         $handler->setHandler(new CurlHandler());
+        $handler->push(Middleware::history($this->history));
 
         $this->client = $client ?? new GuzzleHttpClient([
             'handler' => $handler,
@@ -55,8 +60,22 @@ class Client
         ]);
     }
 
+    /**
+     * Return the clients call-history
+     *
+     * @return array
+     */
+    public function getHistory()
+    {
+        return $this->history;
+    }
+
     public function __call($method, $args)
     {
+        if (!is_object($args[0])) {
+            throw new InvalidArgumentException('Only Payment- and Refund-objects are allowed as first argument');
+        }
+
         switch (get_class($args[0])) {
             case Payment::class:
                 $class = new Payments($this->client);
