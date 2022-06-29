@@ -128,12 +128,9 @@ If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` wi
 
 This package handles the most common Swish-related tasks; retrieve, make and cancel payments, as well as retrieve and make refunds. All of them are performed via `Olssonm\Swish\Client`;
 
-`$client->get(\Olssonm\Swish\Payment $payment);`  
-`$client->create(\Olssonm\Swish\Payment $payment);`  
-`$client->cancel(\Olssonm\Swish\Payment $payment);`  
-`$client->refund(\Olssonm\Swish\Refund $refund);`
-
-`$client->call();` is also available if you wish to implement custom logic.
+`$client->get(Payment $payment | Refund $refund);`  
+`$client->create(Payment $payment | Refund $refund);`  
+`$client->cancel(Payment $payment);`
 
 ### Exception-handling
 
