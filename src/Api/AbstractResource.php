@@ -25,11 +25,11 @@ abstract class AbstractResource
         $this->client = $client;
     }
 
-    abstract public function get($transaction): Payment|Refund;
+    abstract public function get($transaction);
 
-    abstract public function create($transaction): PaymentResult|RefundResult;
+    abstract public function create($transaction);
 
-    abstract public function cancel($transaction): Payment|Refund;
+    abstract public function cancel($transaction);
 
     /**
      * Main API caller
