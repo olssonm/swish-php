@@ -208,10 +208,10 @@ it('can make refund', function() {
         'base_uri' => Client::TEST_ENDPOINT,
     ]));
 
-    $response = $client->refund($refund);
+    $response = $client->create($refund);
 
     $this->assertEquals(201, $container[0]['response']->getStatusCode());
-    $this->assertEquals('/swish-cpcapi/api/v2/refunds', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('/swish-cpcapi/api/v2/refunds/' . $id, $container[0]['request']->getUri()->getPath());
     $this->assertEquals('PUT', $container[0]['request']->getMethod());
 
     $this->assertInstanceOf(RefundResult::class, $response);

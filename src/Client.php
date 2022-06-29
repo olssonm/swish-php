@@ -6,15 +6,15 @@ use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
-use Olssonm\Swish\Api\Request;
+use Olssonm\Swish\Api\Payments;
+use Olssonm\Swish\Api\Refunds;
 
 /**
- * @mixin \Olssonm\Swish\Api\Request
+ * @mixin \Olssonm\Swish\Api\Payments
+ * @mixin \Olssonm\Swish\Api\Refunds
  */
 class Client
 {
-    use Request;
-
     protected GuzzleHttpClient $client;
 
     protected string $endpoint;
@@ -53,5 +53,20 @@ class Client
             'base_uri' => $endpoint,
             'http_errors' => false,
         ]);
+    }
+
+    public function __call($method, $args)
+    {
+        switch (get_class($args[0])) {
+            case Payment::class:
+                $class = new Payments($this->client);
+                break;
+
+            default:
+                $class = new Refunds($this->client);
+                break;
+        }
+
+        return call_user_func_array([$class, $method], $args);
     }
 }

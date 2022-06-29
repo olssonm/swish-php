@@ -2,6 +2,7 @@
 
 namespace Olssonm\Swish\Api;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
@@ -12,79 +13,23 @@ use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
-use Olssonm\Swish\Util\Id;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * @property \GuzzleHttp\Client $client
- */
-trait Request
+abstract class AbstractResource
 {
-    /**
-     * Fetch a payment.
-     *
-     * @param Payment $payment
-     * @return Payment
-     */
-    public function get(Payment $payment): Payment
-    {
-        $response = $this->call('GET', sprintf('v1/paymentrequests/%s', $payment->id));
+    protected $client;
 
-        return new Payment(json_decode((string) $response->getBody(), true));
+    public function __construct(Client $client)
+    {
+        $this->client = $client;
     }
 
-    /**
-     * Create a payment.
-     *
-     * @param Payment $payment
-     * @return PaymentResult
-     */
-    public function create(Payment $payment): PaymentResult
-    {
-        $response = $this->call('PUT', sprintf('v2/paymentrequests/%s', $payment->id), [], json_encode($payment));
+    abstract public function get($transaction): Payment|Refund;
 
-        return new PaymentResult([
-            'id' => Id::parse($response),
-            'location' => $response->getHeaderLine('Location') ?? null,
-            'paymentRequestToken' => $response->getHeaderLine('PaymentRequestToken') ??  null,
-        ]);
-    }
+    abstract public function create($transaction): PaymentResult|RefundResult;
 
-    /**
-     * Create a refund.
-     *
-     * @param Refund $refund
-     * @return Refund
-     */
-    public function refund(Refund $refund): RefundResult
-    {
-        $response = $this->call('PUT', 'v2/refunds', [], json_encode($refund));
-
-        return new RefundResult([
-            'id' => Id::parse($response),
-            'location' => $response->getHeaderLine('Location') ?? null
-        ]);
-    }
-
-    /**
-     * Cancel a payment.
-     *
-     * @param Payment $payment
-     * @return Payment
-     */
-    public function cancel(Payment $payment): Payment
-    {
-        $response = $this->call('PATCH', sprintf('v1/paymentrequests/%s', $payment->id), [
-            'Content-Type' => 'application/json-patch+json'
-        ], json_encode([[
-            'op' => 'replace',
-            'path' => '/status',
-            'value' => 'cancelled',
-        ]]));
-
-        return new Payment(json_decode((string) $response->getBody(), true));
-    }
+    abstract public function cancel($transaction): Payment|Refund;
 
     /**
      * Main API caller
@@ -96,7 +41,7 @@ trait Request
      * @return Response
      * @throws ClientException|ServerException|ValidationException
      */
-    public function call(string $verb, string $uri, array $headers = [], $payload = null): Response
+    public function request(string $verb, string $uri, array $headers = [], $payload = null): Response
     {
         $request = new Psr7Request(
             $verb,
