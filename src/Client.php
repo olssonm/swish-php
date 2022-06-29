@@ -15,13 +15,13 @@ use Olssonm\Swish\Api\Refunds;
  */
 class Client
 {
-    protected GuzzleHttpClient $client;
-
     protected string $endpoint;
 
     public const PRODUCTION_ENDPOINT = 'https://cpc.getswish.net/swish-cpcapi/api/';
 
     public const TEST_ENDPOINT = 'https://mss.cpc.getswish.net/swish-cpcapi/api/';
+
+    protected GuzzleHttpClient $client;
 
     public function __construct(
         array $certificate,

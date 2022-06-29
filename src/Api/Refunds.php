@@ -36,7 +36,7 @@ class Refunds extends AbstractResource
 
         return new RefundResult([
             'id' => Id::parse($response),
-            'location' => $response->getHeaderLine('Location') ?? null
+            'location' => $response->getHeaderLine('Location') ?? null,
         ]);
     }
 
@@ -46,7 +46,7 @@ class Refunds extends AbstractResource
      * @param Refund $transaction
      * @throws BadMethodCallException
      */
-    public function cancel($transaction): Refund
+    public function cancel($transaction): void
     {
         throw new \BadMethodCallException('Refunds can not be cancelled.');
     }

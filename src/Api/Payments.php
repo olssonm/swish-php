@@ -37,7 +37,7 @@ class Payments extends AbstractResource
         return new PaymentResult([
             'id' => Id::parse($response),
             'location' => $response->getHeaderLine('Location') ?? null,
-            'paymentRequestToken' => $response->getHeaderLine('PaymentRequestToken') ??  null,
+            'paymentRequestToken' => $response->getHeaderLine('PaymentRequestToken') ?? null,
         ]);
     }
 
@@ -50,7 +50,7 @@ class Payments extends AbstractResource
     public function cancel($payment): Payment
     {
         $response = $this->request('PATCH', sprintf('v1/paymentrequests/%s', $payment->id), [
-            'Content-Type' => 'application/json-patch+json'
+            'Content-Type' => 'application/json-patch+json',
         ], json_encode([[
             'op' => 'replace',
             'path' => '/status',

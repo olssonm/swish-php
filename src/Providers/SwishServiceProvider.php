@@ -28,21 +28,11 @@ class SwishServiceProvider extends ServiceProvider
     }
 
     /**
-     * Perform post-registration booting of services.
-     *
-     * @return void
-     */
-    public function boot(\Illuminate\Routing\Router $router)
-    {
-        //
-    }
-
-    /**
      * Register any package services.
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         // Publishing of configuration
         $this->publishes([

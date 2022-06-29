@@ -9,10 +9,6 @@ use GuzzleHttp\Psr7\Response;
 use Olssonm\Swish\Exceptions\ClientException;
 use Olssonm\Swish\Exceptions\ServerException;
 use Olssonm\Swish\Exceptions\ValidationException;
-use Olssonm\Swish\Payment;
-use Olssonm\Swish\PaymentResult;
-use Olssonm\Swish\Refund;
-use Olssonm\Swish\RefundResult;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -25,10 +21,19 @@ abstract class AbstractResource
         $this->client = $client;
     }
 
+    /**
+     * Retrieve resource
+     */
     abstract public function get($transaction);
 
+    /**
+     * Create resource
+     */
     abstract public function create($transaction);
 
+    /**
+     * Cancel transaction
+     */
     abstract public function cancel($transaction);
 
     /**
@@ -41,7 +46,7 @@ abstract class AbstractResource
      * @return Response
      * @throws ClientException|ServerException|ValidationException
      */
-    public function request(string $verb, string $uri, array $headers = [], $payload = null): Response
+    protected function request(string $verb, string $uri, array $headers = [], $payload = null): Response
     {
         $request = new Psr7Request(
             $verb,
@@ -98,7 +103,7 @@ abstract class AbstractResource
      * @param ResponseInterface $response
      * @return RequestException
      */
-    private function triggerException(
+    protected function triggerException(
         string $class,
         string $label,
         RequestInterface $request,
