@@ -14,7 +14,7 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractResource
 {
-    protected $client;
+    protected Client $client;
 
     public function __construct(Client $client)
     {
@@ -101,7 +101,7 @@ abstract class AbstractResource
      * @param string $label
      * @param RequestInterface $request
      * @param ResponseInterface $response
-     * @return RequestException
+     * @return void
      */
     protected function triggerException(
         string $class,

@@ -7,6 +7,10 @@
 
 Simple and easy to use Swish-wrapper for PHP. Also includes providers and facades for easy usage with Laravel.
 
+## Prerequisites
+
+This packagade supports PHP ^7.4 and ^8.0, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the CURL and SSL-extensions (in an abosolute majority of cases they should be available per default.)
+
 ## Installation
 
 ```
@@ -106,13 +110,13 @@ $response = Swish::create(new Payment([
 
 ### Payments and Refunds
 
-Always when using the client, use the Payment and Refund-classes even if just an ID is needed for the endpoint, i.e:
+Always when using the client, use the Payment and Refund-classes even if only the ID is needed for the endpoint, i.e:
 
 ``` php
 $payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
 ```
 
-### IDs/UUIDs
+### Regarding IDs/UUIDs
 
 This package uses the v2 of the Swish API where a UUID is set by the merchant. This package handles all these aspects automatically as needed, you may however choose to manually set the ID/instructionUUID (either in Swish's own format, or a default v4-format):
 
@@ -129,7 +133,7 @@ $payment = new Payment([
 If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` will be thrown.
 
 *Note 1:* Wheter you set a default UUID or one in the Swish-format – it will <u>always</u> be formatted for Swish automatically.  
-*Note 2:* This package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC4122 (v4) UUIDs on the fly. Swish accepts V1, 3, 4 and 5 UUIDs.
+*Note 2:* This package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC4122 (v4) UUIDs on the fly. Swish accepts V1, 3, 4 and 5 UUIDs if you chose to set your own UUIDs.
 
 ### Available methods
 
@@ -174,7 +178,7 @@ $paymentOrRefund = Callback::parse($content = null);
 // get_class($paymentOrRefund) = \Olssonm\Swish\Payment::class or \Olssonm\Swish\Refund::class
 ```
 
-The helper automatically retrieve the current HTTP-request. You may however inject your own data if needed (or if you have a Laravel request-object ready):
+The helper automatically retrieve the current HTTP-request. You may however inject your own data if needed (or if you for example has a Laravel request-object ready):
 
 ```php
 class SwishController 
