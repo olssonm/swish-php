@@ -332,6 +332,7 @@ it('throws CallbackDecodingException', function () {
 });
 
 // Make a full standard test against the MSS API
+// to make sure everything is up to snuff
 test('full chain of requests', function () {
 
     $client = get_real_client();
@@ -376,9 +377,11 @@ test('full chain of requests', function () {
     $this->assertEquals($id, $response->id);
     $this->assertEquals(get_class($response), RefundResult::class);
 
-    // Cancel a payment
-    $payment = new Payment(['id' => $id]);
-    $client->cancel($payment);
+    // Get a refund
+    $response = $client->get(new Refund(['id' => $refund->id]));
+    $this->assertEquals(200, $client->getHistory()[3]['response']->getStatusCode());
+    $this->assertEquals($refund->id, $response->id);
+    $this->assertEquals(get_class($response), Refund::class);
 });
 
 function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)

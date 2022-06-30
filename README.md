@@ -1,6 +1,5 @@
 # Swish PHP
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/swish-php.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Supported PHP-versions](https://img.shields.io/packagist/php-v/olssonm/swish-php?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/swish-php.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Build Status](https://img.shields.io/github/workflow/status/olssonm/swish-php/Run%20tests.svg?style=flat-square&label=tests)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
@@ -103,6 +102,14 @@ $response = Swish::create(new Payment([
     'currency' => 'SEK',
     'message' => 'My product',
 ]));
+```
+
+### Payments and Refunds
+
+Always when using the client, use the Payment and Refund-classes even if just an ID is needed for the endpoint, i.e:
+
+``` php
+$payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
 ```
 
 ### IDs/UUIDs
