@@ -5,11 +5,11 @@
 [![Build Status](https://img.shields.io/github/workflow/status/olssonm/swish-php/Run%20tests.svg?style=flat-square&label=tests)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-Simple and easy to use Swish-wrapper for PHP. Also includes providers and facades for easy usage with Laravel.
+A simple and easy to use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
 
 ## Prerequisites
 
-This packagade supports PHP ^7.4 and ^8.0, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the CURL and SSL-extensions (in an abosolute majority of cases they should be available per default.)
+This package supports PHP ^7.4 and ^8.0, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the CURL and SSL-extensions (in an abosolute majority of cases they should be available per default.)
 
 ## Installation
 
@@ -55,7 +55,7 @@ return [
 ];
 ```
 
-This may also be a good place to keep you payee-alias and such, which you can then access with `config('swish.payee_alias)` etc.
+This may also be a good place to keep you payee-alias, callback-url and such, which you can then access with `config('swish.payee_alias)` etc.
 
 ## Usage
 
@@ -85,13 +85,13 @@ $payment = new Payment([
 // Perform the request
 $response = $client->create($payment);
 
-// $response->id = 11A86BE70EA346E4B1C39C874173F088
-// $response->location = https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/11A86BE70EA346E4B1C39C874173F088
+// $response->id = '11A86BE70EA346E4B1C39C874173F088'
+// $response->location = 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/11A86BE70EA346E4B1C39C874173F088'
 // $response->paymentRequestToken = 'a-unique-token'
 
 ```
 
-With Laravel you can also use the facade and save a few lines of code (with this example `Olssonm\Swish\Facades\Swish` has been aliased to `Swish`)
+With Laravel you can also use the facade and save a few lines of code (in this example `Olssonm\Swish\Facades\Swish` has been aliased to `Swish`)
 
 ```php
 use Swish;
@@ -99,10 +99,10 @@ use Olssonm\Swish\Payment;
 
 $response = Swish::create(new Payment([
     'callbackUrl' => 'https://callback-url.com',
-    'payeePaymentReference' => 'XVY77",
-    'payeeAlias' => 123xxxxx,
-    'payerAlias' => 321xxxxx,
-    'amount' => 100,
+    'payeePaymentReference' => 'XVY77',
+    'payeeAlias' => '123xxxxx',
+    'payerAlias' => '321xxxxx',
+    'amount' => '100',
     'currency' => 'SEK',
     'message' => 'My product',
 ]));
@@ -110,7 +110,7 @@ $response = Swish::create(new Payment([
 
 ### Payments and Refunds
 
-Always when using the client, use the Payment and Refund-classes even if only the ID is needed for the endpoint, i.e:
+Always when using the client, use the Payment and Refund-classes <u>even if only the ID is needed for the action</u>, i.e:
 
 ``` php
 $payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
@@ -132,7 +132,7 @@ $payment = new Payment([
 
 If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` will be thrown.
 
-*Note 1:* Wheter you set a default UUID or one in the Swish-format – it will <u>always</u> be formatted for Swish automatically.  
+*Note 1:* Wheter you set a default UUID or one in the Swish-format – it will <u>always</u> be formatted for Swish automatically (dashes removed and in uppercase).  
 *Note 2:* This package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC4122 (v4) UUIDs on the fly. Swish accepts V1, 3, 4 and 5 UUIDs if you chose to set your own UUIDs.
 
 ### Available methods
@@ -197,6 +197,8 @@ class SwishController
 ```
 
 *Note: in a real world scenario you probably want to use separate callback-urls for your refunds and payments to prevent unnecessary parsing as the example above* 
+
+Please note that the callback from Swish is not encrypted or encoded in any way, instead you should make sure that the callback is coming from a [valid IP-range](https://developer.swish.nu/documentation/environments). 
 
 ## License
 
