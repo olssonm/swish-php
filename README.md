@@ -2,7 +2,7 @@
 
 [![Supported PHP-versions](https://img.shields.io/packagist/php-v/olssonm/swish-php?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/swish-php.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
-[![Build Status](https://img.shields.io/github/workflow/status/olssonm/swish-php/Run%20tests.svg?style=flat-square&label=tests)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/olssonm/swish-php/test.yml?branch=main&style=flat-square)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
 A simple and easy to use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
