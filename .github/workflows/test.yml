@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
     php-tests:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-latest
 
         strategy:
             matrix:
@@ -13,10 +13,6 @@ jobs:
                       laravel: ^9.0
                     - php: 8.1
                       laravel: ^9.0
-                    - php: 8.0
-                      laravel: ^8.0
-                    - php: 7.4
-                      laravel: ^7.0
 
         name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
 

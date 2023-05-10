@@ -3,6 +3,7 @@
 namespace Olssonm\Swish\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 
 class SwishServiceProvider extends ServiceProvider
@@ -46,8 +47,9 @@ class SwishServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton('swish', function () {
-            $certificates = config('swish.certificates');
-            return new Client($certificates, config('swish.endpoint'));
+            list($root, $key, $passphrase) = collect(config('swish.certificates'));
+            $certificate = new Certificate($root, $key, $passphrase);
+            return new Client($certificate, config('swish.endpoint'));
         });
 
         $this->app->bind(Client::class, 'swish');
