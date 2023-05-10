@@ -6,6 +6,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use Olssonm\Swish\Callback;
+use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 use Olssonm\Swish\Exceptions\CallbackDecodingException;
 use Olssonm\Swish\Exceptions\ClientException;
@@ -392,7 +393,7 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
     $stack = HandlerStack::create($mock);
     $stack->push(Middleware::history($history));
 
-    return new Client([], Client::TEST_ENDPOINT, new GuzzleHttpClient([
+    return new Client(null, Client::TEST_ENDPOINT, new GuzzleHttpClient([
         'handler' => $stack,
         'http_errors' => false,
         'curl' => [
@@ -400,8 +401,9 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
             CURLOPT_TCP_KEEPIDLE => 10,
             CURLOPT_TIMEOUT => 0,
             CURLOPT_CONNECTTIMEOUT => 20,
+            'verify' => '/certificates/Swish_TLS_RootCA.pem',
             'cert' => [
-                __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.p12',
+                __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
                 'swish'
             ]
         ],
@@ -411,8 +413,11 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
 
 function get_real_client()
 {
-    return new Client([
-        __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.p12',
+    $certificate = new Certificate(
+        __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
+        __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
         'swish'
-    ], Client::TEST_ENDPOINT);
+    );
+
+    return new Client($certificate, Client::TEST_ENDPOINT);
 }
