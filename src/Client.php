@@ -28,7 +28,7 @@ class Client
     protected GuzzleHttpClient $client;
 
     public function __construct(
-        array $certificate,
+        Certificate $certificate = null,
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ) {
@@ -36,7 +36,7 @@ class Client
     }
 
     public function setup(
-        array $certificate,
+        Certificate $certificate = null,
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ): void {
@@ -48,13 +48,14 @@ class Client
         $this->client = $client ?? new GuzzleHttpClient([
             'handler' => $handler,
             'curl' => [
+                CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
                 CURLOPT_TCP_KEEPALIVE => 1,
                 CURLOPT_TCP_KEEPIDLE => 10,
                 CURLOPT_TIMEOUT => 0,
                 CURLOPT_CONNECTTIMEOUT => 20,
             ],
-            'verify' => true,
-            'cert' => $certificate,
+            'verify' => $certificate->getRootCertificate(),
+            'cert' => $certificate->getKeyCertificate(),
             'base_uri' => $endpoint,
             'http_errors' => false,
         ]);
