@@ -2,8 +2,6 @@
 
 namespace Olssonm\Swish;
 
-use Olssonm\Swish\Exceptions\InvalidCertificatePathException;
-
 class Certificate
 {
     private $root;
