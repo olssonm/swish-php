@@ -33,7 +33,7 @@
     },
     "scripts": {
         "test": "./vendor/bin/pest",
-        "coverage": "XDEBUG_MODE=coverage; ./vendor/bin/pest --coverage",
+        "coverage": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage",
         "phpsniff": "vendor/bin/phpcs --standard=\"PSR12\" ./src",
         "phpfix": "vendor/bin/phpcbf --standard=\"PSR12\" ./src"
     },

@@ -310,6 +310,15 @@ it('throws ValidationException', function () {
     $this->assertEquals('PUT', $container[0]['request']->getMethod());
 });
 
+it('throws InvalidArgumentException', function () {
+    $this->expectException(InvalidArgumentException::class);
+
+    $container = [];
+    $client = get_mock_client(429, [], null, $container);
+
+    $client->create(new stdClass());
+});
+
 it('throws ClientException', function () {
     $this->expectException(ClientException::class);
 
@@ -401,7 +410,7 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
             CURLOPT_TCP_KEEPIDLE => 10,
             CURLOPT_TIMEOUT => 0,
             CURLOPT_CONNECTTIMEOUT => 20,
-            'verify' => '/certificates/Swish_TLS_RootCA.pem',
+            'verify' => __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
             'cert' => [
                 __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
                 'swish'
