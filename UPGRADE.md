@@ -33,3 +33,9 @@ $client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
 ```
 
 All other methods are intact.
+
+#### Config
+
+The associated env-parameters has been updated:
+
+`SWISH_CLIENT_CERTIFICATE` is now `SWISH_ROOT_CERTIFICATE_PATH`, and `SWISH_ROOT_CERTIFICATE_PATH` has been added (you will need to supply the Swish root certificate).
