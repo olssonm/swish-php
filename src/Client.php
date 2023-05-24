@@ -48,7 +48,6 @@ class Client
         $this->client = $client ?? new GuzzleHttpClient([
             'handler' => $handler,
             'curl' => [
-                CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
                 CURLOPT_TCP_KEEPALIVE => 1,
                 CURLOPT_TCP_KEEPIDLE => 10,
                 CURLOPT_TIMEOUT => 0,
