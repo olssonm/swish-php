@@ -32,7 +32,7 @@ class Certificate
         ];
     }
 
-    public function getRootCertificate(): ?string
+    public function getRootCertificate(): bool|string
     {
         return $this->root;
     }
