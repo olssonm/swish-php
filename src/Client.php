@@ -55,7 +55,7 @@ class Client
                 CURLOPT_CONNECTTIMEOUT => 20,
             ],
             'verify' => $certificate->getRootCertificate(),
-            'cert' => $certificate->getKeyCertificate(),
+            'cert' => $certificate->getClientCertificate(),
             'base_uri' => $endpoint,
             'http_errors' => false,
         ]);

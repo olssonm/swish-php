@@ -4,30 +4,30 @@ namespace Olssonm\Swish;
 
 class Certificate
 {
-    private $root;
-
-    private $key;
+    private $client;
 
     private $passphrase;
+
+    private $root;
 
     /**
      * Certificate constructor
      *
-     * @param string|null $keyPath Path to key certificate
-     * @param string|null $passphrase Passphrase for key certificate
+     * @param string|null $clientPath Path to client certificate
+     * @param string|null $passphrase Passphrase for client certificate
      * @param bool|string $rootPath Path to root certificate or true/false
      */
-    public function __construct(?string $keyPath, ?string $passphrase = null, bool|string $rootPath = true)
+    public function __construct(?string $clientPath, ?string $passphrase = null, bool|string $rootPath = true)
     {
-        $this->root = $rootPath;
-        $this->key = $keyPath;
+        $this->client = $clientPath;
         $this->passphrase = $passphrase;
+        $this->root = $rootPath;
     }
 
-    public function getKeyCertificate(): ?array
+    public function getClientCertificate(): ?array
     {
         return [
-            $this->key,
+            $this->client,
             $this->passphrase,
         ];
     }

@@ -42,7 +42,7 @@ Each value now has their own seperate key:
 
 ```php
 'certificates' => [
-    'private' => env('SWISH_CLIENT_CERTIFICATE_PATH'),
+    'client' => env('SWISH_CLIENT_CERTIFICATE_PATH'),
     'password' => env('SWISH_CLIENT_CERTIFICATE_PASSWORD'),
     'root' => env('SWISH_ROOT_CERTIFICATE_PATH', true),
 ],
