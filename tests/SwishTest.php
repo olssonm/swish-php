@@ -336,9 +336,14 @@ it('throws ServerException', function () {
     $client->create(new Payment());
 });
 
-it('throws CallbackDecodingException', function () {
+it('throws CallbackDecodingException on invalid', function () {
     $this->expectException(CallbackDecodingException::class);
     Callback::parse('invalid');
+});
+
+it('throws CallbackDecodingException on null', function () {
+    $this->expectException(CallbackDecodingException::class);
+    Callback::parse(null);
 });
 
 // Make a full standard test against the MSS API
