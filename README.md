@@ -31,10 +31,10 @@ When creating the client you will have to set which environment you are working 
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 
-$certificate = new Certificate(
-    '/path/to/root.pem', 
+$certificate = new Certificate( 
     '/path/to/client.pem', 
-    'client-passphrase'
+    'client-passphrase',
+    '/path/to/root.pem' // Can also be omitted for "true" to verify peer
 );
 $client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
 ```
@@ -72,7 +72,6 @@ use Olssonm\Swish\Client;
 use Olssonm\Swish\Payment;
 
 $certificate = new Certificate(
-    '/path/to/root.pem', 
     '/path/to/client.pem', 
     'client-passphrase'
 );
