@@ -52,9 +52,9 @@ In `/config/swish.php` you can then set your details accordingly:
 ``` php
 return [
     'certificates' => [
-        env('SWISH_ROOT_CERTIFICATE_PATH'),
-        env('SWISH_CLIENT_CERTIFICATE_PATH'),
-        env('SWISH_CLIENT_CERTIFICATE_PASSWORD'),
+        'private' => env('SWISH_ROOT_CERTIFICATE_PATH'),
+        'password' => env('SWISH_CLIENT_CERTIFICATE_PATH'),
+        'root' => env('SWISH_CLIENT_CERTIFICATE_PASSWORD', true),
     ],
     'endpoint' => \Olssonm\Swish\Client::PRODUCTION_ENDPOINT,
 ];
