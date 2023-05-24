@@ -423,9 +423,9 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
 function get_real_client()
 {
     $certificate = new Certificate(
-        __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
         __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
-        'swish'
+        'swish',
+        __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
     );
 
     return new Client($certificate, Client::TEST_ENDPOINT);

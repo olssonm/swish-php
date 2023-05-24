@@ -13,20 +13,15 @@ class Certificate
     /**
      * Certificate constructor
      *
-     * @param string|null $rootPath Path to root certificate
      * @param string|null $keyPath Path to key certificate
      * @param string|null $passphrase Passphrase for key certificate
+     * @param bool|string $rootPath Path to root certificate or true/false
      */
-    public function __construct(?string $rootPath, ?string $keyPath, ?string $passphrase = null)
+    public function __construct(?string $keyPath, ?string $passphrase = null, bool|string $rootPath = true)
     {
         $this->root = $rootPath;
         $this->key = $keyPath;
         $this->passphrase = $passphrase;
-    }
-
-    public function getRootCertificate(): ?string
-    {
-        return $this->root;
     }
 
     public function getKeyCertificate(): ?array
@@ -35,5 +30,10 @@ class Certificate
             $this->key,
             $this->passphrase,
         ];
+    }
+
+    public function getRootCertificate(): ?string
+    {
+        return $this->root;
     }
 }
