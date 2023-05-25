@@ -48,4 +48,4 @@ Each value now has their own seperate key:
 ],
 ```
 
-`SWISH_CLIENT_CERTIFICATE` is now `SWISH_ROOT_CERTIFICATE_PATH`, and `SWISH_ROOT_CERTIFICATE_PATH` has been added (you will need to supply the Swish root certificate, or set to "true" to just verify the peer).
+`SWISH_CLIENT_CERTIFICATE` is now `SWISH_CLIENT_CERTIFICATE_PATH`, and `SWISH_ROOT_CERTIFICATE_PATH` has been added (you will need to supply the Swish root certificate, or set to "true" to just verify the peer).
