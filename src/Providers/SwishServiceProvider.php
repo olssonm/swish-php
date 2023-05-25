@@ -48,7 +48,7 @@ class SwishServiceProvider extends ServiceProvider
 
         $this->app->singleton('swish', function () {
             $certificate = new Certificate(
-                clientPath: config('swish.certificates.private'),
+                clientPath: config('swish.certificates.client'),
                 passphrase: config('swish.certificates.password'),
                 rootPath: config('swish.certificates.root')
             );
