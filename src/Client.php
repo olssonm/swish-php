@@ -28,7 +28,7 @@ class Client
     protected GuzzleHttpClient $client;
 
     public function __construct(
-        array $certificate,
+        Certificate $certificate = null,
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ) {
@@ -36,7 +36,7 @@ class Client
     }
 
     public function setup(
-        array $certificate,
+        Certificate $certificate = null,
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ): void {
@@ -53,8 +53,8 @@ class Client
                 CURLOPT_TIMEOUT => 0,
                 CURLOPT_CONNECTTIMEOUT => 20,
             ],
-            'verify' => true,
-            'cert' => $certificate,
+            'verify' => $certificate->getRootCertificate(),
+            'cert' => $certificate->getClientCertificate(),
             'base_uri' => $endpoint,
             'http_errors' => false,
         ]);
@@ -72,7 +72,10 @@ class Client
 
     public function __call($method, $args)
     {
-        if (!is_object($args[0])) {
+        if (
+            !is_object($args[0]) ||
+            ((get_class($args[0]) != Payment::class) && (get_class($args[0]) != Refund::class))
+        ) {
             throw new InvalidArgumentException('Only Payment- and Refund-objects are allowed as first argument');
         }
 
@@ -81,7 +84,7 @@ class Client
                 $class = new Payments($this->client);
                 break;
 
-            default:
+            case Refund::class:
                 $class = new Refunds($this->client);
                 break;
         }

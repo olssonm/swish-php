@@ -9,7 +9,9 @@ A simple and easy to use wrapper for the Swish-API in PHP. Also includes provide
 
 ## Prerequisites
 
-This package supports PHP ^7.4 and ^8.0, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the CURL and SSL-extensions (in an abosolute majority of cases they should be available per default.)
+This package supports PHP ^8.1, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the cURL and SSL-extensions (in an abosolute majority of cases they should be available per default.)
+
+*Using PHP 7.4 or 8.0? v1.0 has support for these.*
 
 ## Installation
 
@@ -26,13 +28,15 @@ Read more about testing in their MSS-environment in their [official documentatio
 When creating the client you will have to set which environment you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/v2`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
 
 ``` php
+use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 
-$certificates = [
-    '/path/to/my/certificate.p12',
-    'my-certificate-password'
-];
-$client = new Client($certificates, $endpoint = Client::TEST_ENDPOINT)
+$certificate = new Certificate( 
+    '/path/to/client.pem', 
+    'client-passphrase',
+    '/path/to/root.pem' // Can also be omitted for "true" to verify peer
+);
+$client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
 ```
 
 ### Laravel
@@ -48,8 +52,9 @@ In `/config/swish.php` you can then set your details accordingly:
 ``` php
 return [
     'certificates' => [
-        env('SWISH_CLIENT_CERTIFICATE'),
-        env('SWISH_CLIENT_CERTIFICATE_PASSWORD')
+        'client' => env('SWISH_CLIENT_CERTIFICATE_PATH'),
+        'password' => env('SWISH_CLIENT_CERTIFICATE_PASSWORD'),
+        'root' => env('SWISH_ROOT_CERTIFICATE_PATH', true),
     ],
     'endpoint' => \Olssonm\Swish\Client::PRODUCTION_ENDPOINT,
 ];
@@ -62,14 +67,15 @@ This may also be a good place to keep you payee-alias, callback-url and such, wh
 A typical case for creating a Swish-payment.
 
 ``` php
+use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 use Olssonm\Swish\Payment;
 
-$certificates = [
-    '/path/to/my/certificate.p12',
-    'my-certificate-password'
-];
-$client = new Client($certificates);
+$certificate = new Certificate(
+    '/path/to/client.pem', 
+    'client-passphrase'
+);
+$client = new Client($certificate);
 
 // Create a new payment-object
 $payment = new Payment([
@@ -204,4 +210,4 @@ Please note that the callback from Swish is not encrypted or encoded in any way,
 
 The MIT License (MIT). Please see the [LICENSE](LICENSE) for more information.
 
-© 2022 [Marcus Olsson](https://marcusolsson.me).
+© 2022-2023 [Marcus Olsson](https://marcusolsson.me).

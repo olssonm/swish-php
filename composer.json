@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.1",
         "guzzlehttp/guzzle": "^6.3.1|^7.0",
         "ramsey/uuid": "^4.2"
     },
@@ -33,13 +33,13 @@
     },
     "scripts": {
         "test": "./vendor/bin/pest",
-        "coverage": "XDEBUG_MODE=coverage; ./vendor/bin/pest --coverage",
+        "coverage": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage",
         "phpsniff": "vendor/bin/phpcs --standard=\"PSR12\" ./src",
         "phpfix": "vendor/bin/phpcbf --standard=\"PSR12\" ./src"
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "1.0.x-dev"
+            "dev-main": "2.0.x-dev"
         },
         "laravel": {
             "providers": [
