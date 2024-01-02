@@ -23,7 +23,10 @@ use Olssonm\Swish\Util\Uuid;
  */
 class Payment extends Resource
 {
-    public function __construct($attributes = [])
+    /**
+     * @param array<string, mixed> $attributes
+     */
+    public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->id = $this->id ?? Uuid::make();

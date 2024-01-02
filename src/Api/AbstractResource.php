@@ -2,10 +2,8 @@
 
 namespace Olssonm\Swish\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request as Psr7Request;
-use GuzzleHttp\Psr7\Response;
 use Olssonm\Swish\Exceptions\ClientException;
 use Olssonm\Swish\Exceptions\ServerException;
 use Olssonm\Swish\Exceptions\ValidationException;
@@ -14,9 +12,9 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractResource
 {
-    protected Client $client;
+    protected ClientInterface $client;
 
-    public function __construct(Client $client)
+    public function __construct(ClientInterface $client)
     {
         $this->client = $client;
     }
@@ -41,12 +39,12 @@ abstract class AbstractResource
      *
      * @param string $verb
      * @param string $uri
-     * @param array $headers
+     * @param array<string, string> $headers
      * @param string|null $payload
-     * @return Response
+     * @return ResponseInterface
      * @throws ClientException|ServerException|ValidationException
      */
-    protected function request(string $verb, string $uri, array $headers = [], $payload = null): Response
+    protected function request(string $verb, string $uri, array $headers = [], string|null $payload = null) : ResponseInterface
     {
         $request = new Psr7Request(
             $verb,
@@ -118,6 +116,9 @@ abstract class AbstractResource
             $response->getReasonPhrase()
         );
 
+        /**
+         * @var \Exception
+         */
         throw new $class(
             $message,
             $request,

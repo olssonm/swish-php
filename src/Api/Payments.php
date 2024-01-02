@@ -32,12 +32,15 @@ class Payments extends AbstractResource
      */
     public function create($payment): PaymentResult
     {
-        $response = $this->request('PUT', sprintf('v2/paymentrequests/%s', $payment->id), [], json_encode($payment));
+        $response = $this->request('PUT', sprintf('v2/paymentrequests/%s', $payment->id), [], (string) json_encode($payment));
+
+        $location = $response->getHeaderLine('Location');
+        $token = $response->getHeaderLine('PaymentRequestToken');
 
         return new PaymentResult([
             'id' => Id::parse($response),
-            'location' => $response->getHeaderLine('Location') ?? null,
-            'paymentRequestToken' => $response->getHeaderLine('PaymentRequestToken') ?? null,
+            'location' => strlen($location) > 0 ? $location : null,
+            'paymentRequestToken' => strlen($token) > 0 ? $token : null,
         ]);
     }
 
@@ -51,7 +54,7 @@ class Payments extends AbstractResource
     {
         $response = $this->request('PATCH', sprintf('v1/paymentrequests/%s', $payment->id), [
             'Content-Type' => 'application/json-patch+json',
-        ], json_encode([[
+        ], (string) json_encode([[
             'op' => 'replace',
             'path' => '/status',
             'value' => 'cancelled',

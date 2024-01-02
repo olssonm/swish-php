@@ -19,13 +19,16 @@ class Client
 {
     protected string $endpoint;
 
+    /**
+     * @var array<mixed>
+     */
     protected array $history = [];
 
     public const PRODUCTION_ENDPOINT = 'https://cpc.getswish.net/swish-cpcapi/api/';
 
     public const TEST_ENDPOINT = 'https://mss.cpc.getswish.net/swish-cpcapi/api/';
 
-    protected GuzzleHttpClient $client;
+    protected ClientInterface $client;
 
     public function __construct(
         Certificate $certificate = null,
@@ -53,8 +56,8 @@ class Client
                 CURLOPT_TIMEOUT => 0,
                 CURLOPT_CONNECTTIMEOUT => 20,
             ],
-            'verify' => $certificate->getRootCertificate(),
-            'cert' => $certificate->getClientCertificate(),
+            'verify' => $certificate?->getRootCertificate(),
+            'cert' => $certificate?->getClientCertificate(),
             'base_uri' => $endpoint,
             'http_errors' => false,
         ]);
@@ -62,15 +65,18 @@ class Client
 
     /**
      * Return the clients call-history
-     *
-     * @return array
+     * 
+     * @return array<mixed>
      */
-    public function getHistory()
+    public function getHistory() : array
     {
         return $this->history;
     }
 
-    public function __call($method, $args)
+    /**
+     * @param array<mixed> $args
+     */
+    public function __call(string $method, array $args) : mixed
     {
         if (
             !is_object($args[0]) ||
@@ -89,6 +95,7 @@ class Client
                 break;
         }
 
+        // @phpstan-ignore-next-line
         return call_user_func_array([$class, $method], $args);
     }
 }

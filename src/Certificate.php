@@ -4,11 +4,11 @@ namespace Olssonm\Swish;
 
 class Certificate
 {
-    private $client;
+    private ?string $client;
 
-    private $passphrase;
+    private ?string $passphrase;
 
-    private $root;
+    private bool|string $root;
 
     /**
      * Certificate constructor
@@ -24,7 +24,10 @@ class Certificate
         $this->root = $rootPath;
     }
 
-    public function getClientCertificate(): ?array
+    /**
+     * @return array<string|null>
+     */
+    public function getClientCertificate(): array
     {
         return [
             $this->client,

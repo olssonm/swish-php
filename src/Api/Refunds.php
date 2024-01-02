@@ -32,11 +32,13 @@ class Refunds extends AbstractResource
      */
     public function create($refund): RefundResult
     {
-        $response = $this->request('PUT', sprintf('v2/refunds/%s', $refund->id), [], json_encode($refund));
+        $response = $this->request('PUT', sprintf('v2/refunds/%s', $refund->id), [], (string) json_encode($refund));
+
+        $location = $response->getHeaderLine('Location');
 
         return new RefundResult([
             'id' => Id::parse($response),
-            'location' => $response->getHeaderLine('Location') ?? null,
+            'location' => strlen($location) > 0 ? $location : null,
         ]);
     }
 
@@ -44,7 +46,7 @@ class Refunds extends AbstractResource
      * Cancel a refund.
      *
      * @param Refund $transaction
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function cancel($transaction): void
     {

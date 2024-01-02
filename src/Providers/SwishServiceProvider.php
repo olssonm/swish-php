@@ -61,7 +61,7 @@ class SwishServiceProvider extends ServiceProvider
     /**
      * Get the services provided by the provider.
      *
-     * @return array
+     * @return array<string>
      * @codeCoverageIgnore
      */
     public function provides()
