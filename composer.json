@@ -34,6 +34,7 @@
     },
     "scripts": {
         "test": "./vendor/bin/pest",
+        "phpstan": "./vendor/bin/phpstan",
         "coverage": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage",
         "phpsniff": "vendor/bin/phpcs --standard=\"PSR12\" ./src",
         "phpfix": "vendor/bin/phpcbf --standard=\"PSR12\" ./src"
