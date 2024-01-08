@@ -21,18 +21,27 @@ abstract class AbstractResource
 
     /**
      * Retrieve resource
+     *
+     * @param $transaction
+     * @return mixed
      */
-    abstract public function get($transaction);
+    abstract public function get($transaction); // @phpstan-ignore-line
 
     /**
      * Create resource
+     *
+     * @param $transaction
+     * @return mixed
      */
-    abstract public function create($transaction);
+    abstract public function create($transaction); // @phpstan-ignore-line
 
     /**
      * Cancel transaction
+     *
+     * @param $transaction
+     * @return mixed
      */
-    abstract public function cancel($transaction);
+    abstract public function cancel($transaction); // @phpstan-ignore-line
 
     /**
      * Main API caller
@@ -44,8 +53,12 @@ abstract class AbstractResource
      * @return ResponseInterface
      * @throws ClientException|ServerException|ValidationException
      */
-    protected function request(string $verb, string $uri, array $headers = [], string|null $payload = null) : ResponseInterface
-    {
+    protected function request(
+        string $verb,
+        string $uri,
+        array $headers = [],
+        string|null $payload = null
+    ): ResponseInterface {
         $request = new Psr7Request(
             $verb,
             $uri,

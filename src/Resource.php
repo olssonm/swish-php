@@ -31,42 +31,42 @@ class Resource implements \ArrayAccess, \Countable, \JsonSerializable
         $this->attributes[$key] = $value;
     }
 
-    public function __get(string $key) : mixed
+    public function __get(string $key): mixed
     {
         return $this->attributes[$key];
     }
 
-    public function __isset(string $key) : bool
+    public function __isset(string $key): bool
     {
         return isset($this->attributes[$key]);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetSet($key, $value) : void
+    public function offsetSet($key, $value): void
     {
         $this->{$key} = $value;
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetExists($key) : bool
+    public function offsetExists($key): bool
     {
         return \array_key_exists($key, $this->attributes);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetUnset($key) : void
+    public function offsetUnset($key): void
     {
         unset($this->attributes[$key]);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key) : mixed
+    public function offsetGet($key): mixed
     {
         return \array_key_exists($key, $this->attributes) ? $this->attributes[$key] : null;
     }
 
     #[\ReturnTypeWillChange]
-    public function count() : int
+    public function count(): int
     {
         return \count($this->attributes);
     }
@@ -75,7 +75,7 @@ class Resource implements \ArrayAccess, \Countable, \JsonSerializable
      * @return array<string, mixed>
      */
     #[\ReturnTypeWillChange]
-    public function jsonSerialize() : array
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
@@ -83,7 +83,7 @@ class Resource implements \ArrayAccess, \Countable, \JsonSerializable
     /**
      * @return array<mixed>
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return $this->attributes;
     }

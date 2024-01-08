@@ -32,7 +32,12 @@ class Payments extends AbstractResource
      */
     public function create($payment): PaymentResult
     {
-        $response = $this->request('PUT', sprintf('v2/paymentrequests/%s', $payment->id), [], (string) json_encode($payment));
+        $response = $this->request(
+            'PUT',
+            sprintf('v2/paymentrequests/%s', $payment->id),
+            [],
+            (string) json_encode($payment)
+        );
 
         $location = $response->getHeaderLine('Location');
         $token = $response->getHeaderLine('PaymentRequestToken');

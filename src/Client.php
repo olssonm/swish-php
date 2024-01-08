@@ -65,10 +65,10 @@ class Client
 
     /**
      * Return the clients call-history
-     * 
+     *
      * @return array<mixed>
      */
-    public function getHistory() : array
+    public function getHistory(): array
     {
         return $this->history;
     }
@@ -76,7 +76,7 @@ class Client
     /**
      * @param array<mixed> $args
      */
-    public function __call(string $method, array $args) : mixed
+    public function __call(string $method, array $args): mixed
     {
         if (
             !is_object($args[0]) ||
