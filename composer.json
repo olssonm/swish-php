@@ -19,7 +19,8 @@
         "phpunit/phpunit": "^8.3 || ^9.3",
         "orchestra/testbench": ">=4.0",
         "squizlabs/php_codesniffer": "^3.5",
-        "pestphp/pest": "^1.0"
+        "pestphp/pest": "^1.0",
+        "phpstan/phpstan": "^1.10"
     },
     "autoload": {
         "psr-4": {
@@ -33,6 +34,7 @@
     },
     "scripts": {
         "test": "./vendor/bin/pest",
+        "phpstan": "./vendor/bin/phpstan",
         "coverage": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage",
         "phpsniff": "vendor/bin/phpcs --standard=\"PSR12\" ./src",
         "phpfix": "vendor/bin/phpcbf --standard=\"PSR12\" ./src"

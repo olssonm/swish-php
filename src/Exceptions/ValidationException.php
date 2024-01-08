@@ -9,8 +9,16 @@ use Psr\Http\Message\ResponseInterface;
 
 class ValidationException extends RequestException
 {
+    /**
+     * @var array<Error>
+     */
     private array $errors = [];
 
+    /**
+     * Undocumented function
+     *
+     * @param array<mixed> $handlerContext
+     */
     public function __construct(
         string $message,
         RequestInterface $request,
@@ -19,7 +27,7 @@ class ValidationException extends RequestException
         array $handlerContext = []
     ) {
 
-        $data = json_decode((string) $response->getBody()->getContents());
+        $data = json_decode((string) $response?->getBody()->getContents());
 
         if (is_array($data)) {
             foreach ($data as $error) {
@@ -36,9 +44,11 @@ class ValidationException extends RequestException
         parent::__construct($message, $request, $response, $previous, $handlerContext);
     }
 
+    /**
+     * @return array<Error>
+     */
     public function getErrors(): array
     {
-
         return $this->errors;
     }
 }

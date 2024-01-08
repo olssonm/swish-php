@@ -7,14 +7,20 @@ use Olssonm\Swish\Util\Uuid;
 
 class Resource implements \ArrayAccess, \Countable, \JsonSerializable
 {
+    /**
+     * @var array<string, mixed>
+     */
     protected array $attributes;
 
+    /**
+     * @param array<string, mixed> $attributes
+     */
     public function __construct(array $attributes = [])
     {
         $this->attributes = $attributes;
     }
 
-    public function __set($key, $value)
+    public function __set(string $key, mixed $value)
     {
         if (in_array($key, ['id', 'instructionUUID'])) {
             if (!Uuid::validate($value)) {
@@ -25,53 +31,59 @@ class Resource implements \ArrayAccess, \Countable, \JsonSerializable
         $this->attributes[$key] = $value;
     }
 
-    public function __get($key)
+    public function __get(string $key): mixed
     {
         return $this->attributes[$key];
     }
 
-    public function __isset($key)
+    public function __isset(string $key): bool
     {
         return isset($this->attributes[$key]);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         $this->{$key} = $value;
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetExists($key)
+    public function offsetExists($key): bool
     {
         return \array_key_exists($key, $this->attributes);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetUnset($key)
+    public function offsetUnset($key): void
     {
         unset($this->attributes[$key]);
     }
 
     #[\ReturnTypeWillChange]
-    public function offsetGet($key)
+    public function offsetGet($key): mixed
     {
         return \array_key_exists($key, $this->attributes) ? $this->attributes[$key] : null;
     }
 
     #[\ReturnTypeWillChange]
-    public function count()
+    public function count(): int
     {
         return \count($this->attributes);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
 
-    public function toArray()
+    /**
+     * @return array<mixed>
+     */
+    public function toArray(): array
     {
         return $this->attributes;
     }

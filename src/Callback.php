@@ -16,7 +16,7 @@ class Callback
     public static function parse($content = null)
     {
         if (is_null($content)) {
-            $content = file_get_contents('php://input');
+            $content = (string) file_get_contents('php://input');
         }
 
         try {
