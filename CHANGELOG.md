@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.1 - 2024-01-08
+
+### What's Changed
+
+* Adding support for phpstan by @pnx in https://github.com/olssonm/swish-php/pull/5
+
+### New Contributors
+
+* @pnx made their first contribution in https://github.com/olssonm/swish-php/pull/5
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v2.0...v2.1
+
 ## v2.0 - 2023-05-25
 
 Some rework to package to more easier load .pem-certificates instead of the .p12-variant.
