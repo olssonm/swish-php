@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.2 - 2024-06-20
+
+### What's Changed
+
+* Exclude non-essential files in production environments by @vinkla in https://github.com/olssonm/swish-php/pull/6
+
+### New Contributors
+
+* @vinkla made their first contribution in https://github.com/olssonm/swish-php/pull/6
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v2.1...v2.2
+
 ## v2.1 - 2024-01-08
 
 ### What's Changed
