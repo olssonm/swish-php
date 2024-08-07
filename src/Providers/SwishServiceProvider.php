@@ -2,7 +2,7 @@
 
 namespace Olssonm\Swish\Providers;
 
-use Illuminate\Container\Container;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
