@@ -20,7 +20,7 @@ class SwishServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $this->app->singleton('swish', function (Container $app) {
+        $this->app->singleton('swish', function (Container $app): Client {
             $certificate = new Certificate(
                 clientPath: $app['config']['swish.certificates.client'],
                 passphrase: $app['config']['swish.certificates.password'],
