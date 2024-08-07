@@ -11,7 +11,7 @@ class SwishServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        $source = realpath($raw = __DIR__ . '/../config/swish.php') ?: $raw;
+        $source = realpath($raw = __DIR__ . '/../../config/swish.php') ?: $raw;
 
         $this->publishes([$source => config_path('swish.php')]);
 
