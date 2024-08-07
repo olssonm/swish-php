@@ -2,69 +2,38 @@
 
 namespace Olssonm\Swish\Providers;
 
+use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 
 class SwishServiceProvider extends ServiceProvider
 {
-    /**
-     * Path to config-file
-     *
-     * @var string
-     */
-    protected $config;
-
-    /**
-     * Constructor
-     *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @return void
-     */
-    public function __construct($app)
+    public function boot(): void
     {
-        $this->config = __DIR__ . '/../config.php';
+        $source = realpath($raw = __DIR__ . '/../config/swish.php') ?: $raw;
 
-        parent::__construct($app);
+        $this->publishes([$source => config_path('swish.php')]);
+
+        $this->mergeConfigFrom($source, 'swish');
     }
 
-    /**
-     * Register any package services.
-     *
-     * @return void
-     */
     public function register(): void
     {
-        // Publishing of configuration
-        $this->publishes([
-            $this->config => config_path('swish.php'),
-        ]);
-
-        // If the user doesn't set their own config, load default
-        $this->mergeConfigFrom(
-            $this->config,
-            'swish'
-        );
-
-        $this->app->singleton('swish', function () {
+        $this->app->singleton('swish', function (Container $app) {
             $certificate = new Certificate(
-                clientPath: config('swish.certificates.client'),
-                passphrase: config('swish.certificates.password'),
-                rootPath: config('swish.certificates.root')
+                clientPath: $app['config']['swish.certificates.client'],
+                passphrase: $app['config']['swish.certificates.password'],
+                rootPath: $app['config']['swish.certificates.root']
             );
-            return new Client($certificate, config('swish.endpoint'));
+
+            return new Client($certificate, $app['config']['swish.endpoint']);
         });
 
-        $this->app->bind(Client::class, 'swish');
+        $this->app->alias('swish', Client::class);
     }
 
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array<string>
-     * @codeCoverageIgnore
-     */
-    public function provides()
+    public function provides(): array
     {
         return ['swish'];
     }
