@@ -33,6 +33,7 @@ class SwishServiceProvider extends ServiceProvider
         $this->app->alias('swish', Client::class);
     }
 
+    /** @codeCoverageIgnore */
     public function provides(): array
     {
         return ['swish'];
