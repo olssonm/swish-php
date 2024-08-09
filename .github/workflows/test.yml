@@ -10,7 +10,11 @@ jobs:
             matrix:
                 os: [ubuntu-latest,ubuntu-20.04]
                 php: [8.1,8.2,8.3]
-                laravel: [^10.0,^11.0]
+                laravel: [11.*, 10.*]
+                dependency-version: [prefer-lowest, prefer-stable]
+                exclude:
+                    - laravel: 11.*
+                      php: 8.1
 
         name: ${{ matrix.os }}, PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
 
@@ -27,7 +31,7 @@ jobs:
               run: composer self-update --2
 
             - name: Install dependencies
-              run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress --no-suggest
+              run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress
 
             - name: Execute tests
               run: composer test
