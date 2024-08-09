@@ -46,12 +46,10 @@ class Payouts extends AbstractResource
         ));
 
         $location = $response->getHeaderLine('Location');
-        $token = $response->getHeaderLine('PaymentRequestToken');
 
         return new PayoutResult([
-            'id' => Id::parse($response),
-            'location' => strlen($location) > 0 ? $location : null,
-            'paymentRequestToken' => strlen($token) > 0 ? $token : null,
+            'payoutInstructionUUID' => Id::parse($response),
+            'location' => strlen($location) > 0 ? $location : null
         ]);
     }
 
