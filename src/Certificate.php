@@ -26,8 +26,7 @@ class Certificate
         ?string $passphrase = null,
         bool|string $rootPath = true,
         ?string $signingPath = null
-    )
-    {
+    ) {
         $this->client = $clientPath;
         $this->passphrase = $passphrase;
         $this->root = $rootPath;
@@ -54,7 +53,7 @@ class Certificate
     }
 
     /**
-     * @return bool|string
+     * @return null|string
      */
     public function getSigningCertificate(): null|string
     {
@@ -67,13 +66,18 @@ class Certificate
     public function getSerial(): string
     {
         try {
-            $content = file_get_contents($this->client);
-            $details = openssl_x509_read($content);
-            $results = openssl_x509_parse($details)['serialNumberHex'];
+            $content = file_get_contents($this->client); // @phpstan-ignore argument.type
+            $details = openssl_x509_read($content); // @phpstan-ignore argument.type
+            $results = openssl_x509_parse($details); // @phpstan-ignore argument.type
+            $serial = $results['serialNumberHex']; // @phpstan-ignore offsetAccess.nonOffsetAccessible
         } catch (\Throwable $th) {
-            throw new CertificateDecodingException('Could not parse and retrieve the serial number for the certificate. Please check your path and passphrase.', 0, $th);
+            throw new CertificateDecodingException(
+                'Could notretrieve the serial number for the certificate. Please check your path and passphrase.',
+                0,
+                $th
+            );
         }
 
-        return $results;
+        return $serial;
     }
 }

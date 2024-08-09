@@ -36,8 +36,10 @@ it('can perform payout', function() {
         'currency' => 'SEK',
         'payoutType' => 'PAYOUT',
         'message' => 'Test',
+        'callbackUrl' => 'https://example.com/callback',
         'instructionDate' => Time::make(),
     ]);
+
     $client = get_real_client($certificate);
 
     $client->create($payout);

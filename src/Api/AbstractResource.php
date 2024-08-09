@@ -19,12 +19,15 @@ abstract class AbstractResource
 {
     protected ClientInterface $client;
 
-    protected ?Client $swish;
+    protected Client $swish;
 
     public function __construct(ClientInterface $client, ?Client $swish = null)
     {
         $this->client = $client;
-        $this->swish = $swish;
+
+        if ($swish) {
+            $this->swish = $swish;
+        }
     }
 
     /**

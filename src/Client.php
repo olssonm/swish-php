@@ -20,7 +20,7 @@ class Client
 {
     protected string $endpoint;
 
-    protected Certificate $certificate;
+    protected ?Certificate $certificate;
 
     /**
      * @var array<mixed>
@@ -80,9 +80,9 @@ class Client
     /**
      * Return the clients call-history
      *
-     * @return Certificate
+     * @return ?Certificate
      */
-    public function getCertificate(): Certificate
+    public function getCertificate(): ?Certificate
     {
         return $this->certificate;
     }
@@ -94,9 +94,15 @@ class Client
     {
         if (
             !is_object($args[0]) ||
-            ((get_class($args[0]) != Payment::class) && (get_class($args[0]) != Refund::class)&& (get_class($args[0]) != Payout::class))
+            (
+                (get_class($args[0]) != Payment::class) &&
+                (get_class($args[0]) != Refund::class) &&
+                (get_class($args[0]) != Payout::class)
+            )
         ) {
-            throw new InvalidArgumentException('Only Payment-, Payous- and Refund-objects are allowed as first argument');
+            throw new InvalidArgumentException(
+                'Only Payment-, Payous- and Refund-objects are allowed as first argument'
+            );
         }
 
         switch (get_class($args[0])) {

@@ -4,6 +4,7 @@ namespace Olssonm\Swish\Api;
 
 use Olssonm\Swish\Payout;
 use Olssonm\Swish\PayoutResult;
+use Olssonm\Swish\Util\Crypto;
 use Olssonm\Swish\Util\Hash;
 use Olssonm\Swish\Util\Id;
 
@@ -29,19 +30,18 @@ class Payouts extends AbstractResource
     /**
      * Create a payment.
      *
-     * @param Payout $payment
-     * @return PaymentResult
+     * @param Payout $payout
+     * @return PayoutResult
      */
     public function create($payout): PayoutResult
     {
-        $hash = Hash::make(json_encode($payout));
-        $signature = Hash::sign($hash, $this->swish->getCertificate()->getSigningCertificate());
+        $signature = Crypto::hashAndSign($payout, $this->swish->getCertificate()->getSigningCertificate());
 
         $response = $this->request('POST', 'v1/payouts', [], (string) json_encode(
             [
                 'payload' => $payout,
-                'callbackUrl' => 'https://webhook.site/9b1854f3-afec-4e1c-9f31-0df81d2423d3',
-                'signature' => base64_encode($signature),
+                'callbackUrl' => $payout->callbackUrl,
+                'signature' => $signature,
             ]
         ));
 

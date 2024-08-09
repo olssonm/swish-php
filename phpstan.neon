@@ -2,4 +2,5 @@ parameters:
     level: 8
     paths:
       - src
-    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+      - identifier: missingType.generics

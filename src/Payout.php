@@ -4,6 +4,8 @@ namespace Olssonm\Swish;
 
 use Olssonm\Swish\Util\Uuid;
 
+use function PHPUnit\Framework\objectHasAttribute;
+
 /**
  * @property string $payoutInstructionUUID
  * @property string $payerPaymentReference
@@ -24,16 +26,39 @@ use Olssonm\Swish\Util\Uuid;
  */
 class Payout extends Resource
 {
+    public string $callbackUrl = '';
+
     /**
      * @param array<string, mixed> $attributes
      */
     public function __construct(array $attributes = [])
     {
-        parent::__construct($attributes);
-        $this->payoutInstructionUUID = $this->payoutInstructionUUID ?? Uuid::make();
+        foreach ($attributes as $key => $value) {
+            $this->{$key} = $value;
+        }
 
         // Assume some default details
+        $this->payoutInstructionUUID = $this->payoutInstructionUUID ?? Uuid::make();
         $this->currency = $this->currency ?? 'SEK';
         $this->payoutType = $this->payoutType ?? 'PAYOUT';
+    }
+
+    public function __get(string $key): mixed
+    {
+        if (property_exists($this, $key)) {
+            return $this->{$key};
+        }
+
+        return parent::__get($key);
+    }
+
+    public function __set(string $key, mixed $value)
+    {
+        if (property_exists($this, $key)) {
+            $this->{$key} = $value;
+            return;
+        }
+
+        parent::__set($key, $value);
     }
 }
