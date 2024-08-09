@@ -20,6 +20,8 @@ class Client
 {
     protected string $endpoint;
 
+    protected Certificate $certificate;
+
     /**
      * @var array<mixed>
      */
@@ -36,6 +38,7 @@ class Client
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ) {
+        $this->certificate = $certificate;
         $this->setup($certificate, $endpoint, $client);
     }
 
@@ -75,6 +78,16 @@ class Client
     }
 
     /**
+     * Return the clients call-history
+     *
+     * @return Certificate
+     */
+    public function getCertificate(): Certificate
+    {
+        return $this->certificate;
+    }
+
+    /**
      * @param array<mixed> $args
      */
     public function __call(string $method, array $args): mixed
@@ -96,7 +109,7 @@ class Client
                 break;
 
             case Payout::class:
-                $class = new Payouts($this->client);
+                $class = new Payouts($this->client, $this);
                 break;
         }
 

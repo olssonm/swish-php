@@ -13,7 +13,7 @@ it('can retrieve certificate serial', function () {
         __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
     );
 
-    $this->assertEquals($certificate->getSerial(), '4EF5C55AA5E475A3611087A4897F3F13');
+    $this->assertEquals($certificate->getSerial(), '4512B3EBDA6E3CE6BFB14ABA6274A02C');
 });
 
 it('can perform payout', function() {
@@ -22,15 +22,16 @@ it('can perform payout', function() {
         __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
         'swish',
         __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
+        __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.key',
     );
 
     $payout = new Payout([
         'payoutInstructionUUID' => Uuid::make(),
         'payerPaymentReference' => 'Test',
         'signingCertificateSerialNumber' => $certificate->getSerial(),
-        'payerAlias' => '4671234768',
-        'payeeAlias' => '1231181189',
-        'payeeSSN' => '199801012345',
+        'payerAlias' => '1234679304',
+        'payeeAlias' => '1234679304',
+        'payeeSSN' => '195810288083',
         'amount' => '100',
         'currency' => 'SEK',
         'payoutType' => 'PAYOUT',

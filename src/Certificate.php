@@ -12,6 +12,8 @@ class Certificate
 
     private bool|string $root;
 
+    private ?string $signing;
+
     /**
      * Certificate constructor
      *
@@ -19,11 +21,17 @@ class Certificate
      * @param string|null $passphrase Passphrase for client certificate
      * @param bool|string $rootPath Path to root certificate or true/false
      */
-    public function __construct(?string $clientPath, ?string $passphrase = null, bool|string $rootPath = true)
+    public function __construct(
+        ?string $clientPath,
+        ?string $passphrase = null,
+        bool|string $rootPath = true,
+        ?string $signingPath = null
+    )
     {
         $this->client = $clientPath;
         $this->passphrase = $passphrase;
         $this->root = $rootPath;
+        $this->signing = $signingPath;
     }
 
     /**
@@ -43,6 +51,14 @@ class Certificate
     public function getRootCertificate(): bool|string
     {
         return $this->root;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function getSigningCertificate(): null|string
+    {
+        return $this->signing;
     }
 
     /**
