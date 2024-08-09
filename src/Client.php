@@ -10,6 +10,7 @@ use GuzzleHttp\Middleware;
 use Olssonm\Swish\Api\Payments;
 use Olssonm\Swish\Api\Refunds;
 use InvalidArgumentException;
+use Olssonm\Swish\Api\Payouts;
 
 /**
  * @mixin \Olssonm\Swish\Api\Payments
@@ -80,9 +81,9 @@ class Client
     {
         if (
             !is_object($args[0]) ||
-            ((get_class($args[0]) != Payment::class) && (get_class($args[0]) != Refund::class))
+            ((get_class($args[0]) != Payment::class) && (get_class($args[0]) != Refund::class)&& (get_class($args[0]) != Payout::class))
         ) {
-            throw new InvalidArgumentException('Only Payment- and Refund-objects are allowed as first argument');
+            throw new InvalidArgumentException('Only Payment-, Payous- and Refund-objects are allowed as first argument');
         }
 
         switch (get_class($args[0])) {
@@ -92,6 +93,10 @@ class Client
 
             case Refund::class:
                 $class = new Refunds($this->client);
+                break;
+
+            case Payout::class:
+                $class = new Payouts($this->client);
                 break;
         }
 

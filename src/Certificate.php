@@ -2,6 +2,8 @@
 
 namespace Olssonm\Swish;
 
+use Olssonm\Swish\Exceptions\CertificateDecodingException;
+
 class Certificate
 {
     private ?string $client;
@@ -35,8 +37,27 @@ class Certificate
         ];
     }
 
+    /**
+     * @return bool|string
+     */
     public function getRootCertificate(): bool|string
     {
         return $this->root;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSerial(): string
+    {
+        try {
+            $content = file_get_contents($this->client);
+            $details = openssl_x509_read($content);
+            $results = openssl_x509_parse($details)['serialNumberHex'];
+        } catch (\Throwable $th) {
+            throw new CertificateDecodingException('Could not parse and retrieve the serial number for the certificate. Please check your path and passphrase.', 0, $th);
+        }
+
+        return $results;
     }
 }
