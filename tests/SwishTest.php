@@ -424,14 +424,3 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
         'base_uri' => Client::TEST_ENDPOINT,
     ]));
 }
-
-function get_real_client()
-{
-    $certificate = new Certificate(
-        __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
-        'swish',
-        __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
-    );
-
-    return new Client($certificate, Client::TEST_ENDPOINT);
-}

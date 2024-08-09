@@ -29,6 +29,10 @@ class Callback
         if (isset($data['originalPaymentReference'])) {
             return new Refund($data);
         }
+        // Assume payout if 'payoutInstructionUUID' is set
+        elseif (isset($data['payoutInstructionUUID'])) {
+            return new Payout($data);
+        }
 
         return new Payment($data);
     }

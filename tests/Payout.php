@@ -44,8 +44,3 @@ it('can perform payout', function() {
 
     $client->create($payout);
 });
-
-function get_real_client($certificate)
-{
-    return new Client($certificate, Client::TEST_ENDPOINT);
-}

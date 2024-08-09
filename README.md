@@ -34,7 +34,8 @@ use Olssonm\Swish\Client;
 $certificate = new Certificate( 
     '/path/to/client.pem', 
     'client-passphrase',
-    '/path/to/root.pem' // Can also be omitted for "true" to verify peer
+    '/path/to/root.pem', // Can also be omitted for "true" to verify peer
+    '/path/to/signing.key' // Path to signing certificate, only used for payouts
 );
 $client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
 ```
@@ -55,6 +56,7 @@ return [
         'client' => env('SWISH_CLIENT_CERTIFICATE_PATH'),
         'password' => env('SWISH_CLIENT_CERTIFICATE_PASSWORD'),
         'root' => env('SWISH_ROOT_CERTIFICATE_PATH', true),
+        'signing' => env('SWISH_SIGNING_CERTIFICATE_PATH', null),
     ],
     'endpoint' => \Olssonm\Swish\Client::PRODUCTION_ENDPOINT,
 ];
@@ -122,6 +124,41 @@ Always when using the client, use the Payment and Refund-classes <u>even if only
 $payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
 ```
 
+### Payouts
+
+Payouts need to be signed with a signing certificate before being sent to Swish – don't worry though, this package will handle most of this automatically 🤓. Just make sure that the path to your signing certificate is set:
+
+``` php
+$certificate = new Certificate(
+    '/path/to/client.pem', 
+    'client-passphrase',
+    true,
+    '/path/to/signing.key'
+);
+$client = new Client($certificate);
+
+$payout = $client->create(new Payout([]));
+```
+
+Additionally your certificates (*note:* your client certificate, not signing certificate) serial needs to be supplied. You can either use the `Certificate`-class to handle on the fly:
+
+``` php
+$certificate = new Certificate(/**/);
+$payout = new Payout([
+    'signingCertificateSerialNumber' => $certificate->getSerial()
+])
+```
+
+Or assign it yourself ([see gist for extracting serial](https://gist.github.com/olssonm/7da7d35dff2ec3ae74d0d0439003913c)):
+
+``` php
+$payout = new Payout([
+    'signingCertificateSerialNumber' => '4512B3EBDA6E3CE6BFB14ABA6274A02C'
+])
+```
+
+Note that Payouts uses `payoutInstructionUUID` instead of an `ID`, you should [set this yourself to keep track of it](#regarding-idsuuids). If it's missing, it will be set automatically on creation.
+
 ### Regarding IDs/UUIDs
 
 This package uses the v2 of the Swish API where a UUID is set by the merchant. This package handles all these aspects automatically as needed, you may however choose to manually set the ID/instructionUUID (either in Swish's own format, or a default v4-format):
@@ -143,10 +180,10 @@ If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` wi
 
 ### Available methods
 
-This package handles the most common Swish-related tasks; retrieve, make and cancel payments, as well as retrieve and make refunds. All of them are performed via `Olssonm\Swish\Client`;
+This package handles the most common Swish-related tasks; retrieve, make and cancel payments. Additionally refunds can be created and retrieved as well. All of them are performed via `Olssonm\Swish\Client`;
 
-`$client->get(Payment $payment | Refund $refund);`  
-`$client->create(Payment $payment | Refund $refund);`  
+`$client->get(Payment $payment | Refund $refund | Payout $payout);`  
+`$client->create(Payment $payment | Refund $refund | Payout $payout);`  
 `$client->cancel(Payment $payment);`
 
 ### Exception-handling
@@ -174,14 +211,14 @@ For `4xx`-error a `\Olssonm\Swish\Exceptions\ClientException` will be thrown, an
 
 Swish recommends to not use the `payments`-endpoint to get the status of a payment or refund (even if they themselves use it in some of their examples...), but instead use callbacks.
 
-This package includes a simple helper to retrieve a `Payment` or `Refund` object from a callback that will contain all data from Swish:
+This package includes a simple helper to retrieve a `Payment`, `Refund` pr `Payout` object from a callback that will contain all data from Swish:
 
 ```php 
 use Olssonm\Swish\Callback;
 
 $paymentOrRefund = Callback::parse($content = null);
 
-// get_class($paymentOrRefund) = \Olssonm\Swish\Payment::class or \Olssonm\Swish\Refund::class
+// get_class($paymentOrRefund) = \Olssonm\Swish\Payment::class, \Olssonm\Swish\Refund::class, \Olssonm\Swish\Payout::class
 ```
 
 The helper automatically retrieve the current HTTP-request. You may however inject your own data if needed (or if you for example has a Laravel request-object ready):
@@ -202,7 +239,7 @@ class SwishController
 }
 ```
 
-*Note: in a real world scenario you probably want to use separate callback-urls for your refunds and payments to prevent unnecessary parsing as the example above* 
+*Note: in a real world scenario you probably want to use separate callback-urls for your refunds, payouts and payments to prevent unnecessary parsing as the example above* 
 
 Please note that the callback from Swish is not encrypted or encoded in any way, instead you should make sure that the callback is coming from a [valid IP-range](https://developer.swish.nu/documentation/environments). 
 
