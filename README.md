@@ -118,6 +118,9 @@ $response = Swish::create(new Payment([
 
 ### Payments and Refunds
 
+> [!TIP]
+> Read more about [payments](https://developer.swish.nu/api/payment-request/v2) and [refunds](https://developer.swish.nu/api/refunds/v2) in the official documentation
+
 Always when using the client, use the Payment and Refund-classes <u>even if only the ID is needed for the action</u>, i.e:
 
 ``` php
@@ -125,6 +128,9 @@ $payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
 ```
 
 ### Payouts
+
+> [!TIP]
+> Read more about [payouts](https://developer.swish.nu/api/payouts/v1) in the official documentation
 
 Payouts need to be signed with a signing certificate before being sent to Swish – don't worry though, this package will handle most of this automatically 🤓. Just make sure that the path to your signing certificate is set:
 
@@ -207,11 +213,11 @@ try {
 
 For `4xx`-error a `\Olssonm\Swish\Exceptions\ClientException` will be thrown, and for `5xx`-errors `\Olssonm\Swish\Exceptions\ServerException`. Both of these implements Guzzles `BadResponseException` which makes the request- and response-objects available if needed.
 
-## Callback
+## Callbacks
 
 Swish recommends to not use the `payments`-endpoint to get the status of a payment or refund (even if they themselves use it in some of their examples...), but instead use callbacks.
 
-This package includes a simple helper to retrieve a `Payment`, `Refund` pr `Payout` object from a callback that will contain all data from Swish:
+This package includes a simple helper to retrieve a `Payment`, `Refund` or `Payout` object from a callback that will contain all data from Swish:
 
 ```php 
 use Olssonm\Swish\Callback;
@@ -247,4 +253,4 @@ Please note that the callback from Swish is not encrypted or encoded in any way,
 
 The MIT License (MIT). Please see the [LICENSE](LICENSE) for more information.
 
-© 2022-2023 [Marcus Olsson](https://marcusolsson.me).
+© 2022-2024 [Marcus Olsson](https://marcusolsson.me).
