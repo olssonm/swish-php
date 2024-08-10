@@ -22,6 +22,7 @@ it('loads config', function () {
     $this->assertArrayHasKey('password', config('swish.certificates'));
     $this->assertArrayHasKey('root', config('swish.certificates'));
     $this->assertArrayHasKey('signing', config('swish.certificates'));
+    $this->assertArrayHasKey('signing_password', config('swish.certificates'));
     $this->assertArrayHasKey('endpoint', config('swish'));
 });
 

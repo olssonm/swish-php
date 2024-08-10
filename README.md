@@ -36,6 +36,7 @@ $certificate = new Certificate(
     'client-passphrase',
     '/path/to/root.pem', // Can also be omitted for "true" to verify peer
     '/path/to/signing.key' // Path to signing certificate, only used for payouts
+    'signing-passphrase' // Only used for payouts
 );
 $client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
 ```
@@ -57,6 +58,7 @@ return [
         'password' => env('SWISH_CLIENT_CERTIFICATE_PASSWORD'),
         'root' => env('SWISH_ROOT_CERTIFICATE_PATH', true),
         'signing' => env('SWISH_SIGNING_CERTIFICATE_PATH', null),
+        'signing_password' => env('SWISH_CLIENT_SIGNING_PASSWORD', null),
     ],
     'endpoint' => \Olssonm\Swish\Client::PRODUCTION_ENDPOINT,
 ];
@@ -139,7 +141,8 @@ $certificate = new Certificate(
     '/path/to/client.pem', 
     'client-passphrase',
     true,
-    '/path/to/signing.key'
+    '/path/to/signing.key',
+    'signing-passphrase'
 );
 $client = new Client($certificate);
 

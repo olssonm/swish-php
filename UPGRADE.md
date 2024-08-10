@@ -12,18 +12,19 @@ All other methods for creating and retrieving payments and refunds are intact.
 
 ### Changes
 
-`Olssonm\Swish\Certificate` now accepts an additional parameter – the path to your signing certificate:
+`Olssonm\Swish\Certificate` now accepts additional parameters – the path to your signing certificate and it's (optional) passphrase:
 
 ``` php
 $certificate = new Certificate( 
     '/path/to/client.pem', 
     'client-passphrase',
     '/path/to/root.pem', 
-    '/path/to/signing.key' // <-- New
+    '/path/to/signing.key', // <-- New
+    'signing-passphrase' // <-- New
 );
 ```
 
-Please note that it can be omitted if you are not planning to use the Payout-features.
+Please note that they can be omitted if you are not planning to use the Payout-features.
 
 If you're using Laravel and publish the config, you should add the `signing`-key to the swish.php-config:
 
@@ -32,6 +33,7 @@ return [
     'certificates' => [
         /* ... */
         'signing' => env('SWISH_SIGNING_CERTIFICATE_PATH', null),
+        'signing_password' => env('SWISH_SIGNING_CERTIFICATE_PASSWORD', null),
     ],
     'endpoint' => \Olssonm\Swish\Client::PRODUCTION_ENDPOINT,
 ]
