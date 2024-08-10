@@ -1,12 +1,15 @@
 <?php
 
 use Olssonm\Swish\Callback;
+use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Exceptions\CallbackDecodingException;
+use Olssonm\Swish\Exceptions\CertificateDecodingException;
 use Olssonm\Swish\Exceptions\ClientException;
 use Olssonm\Swish\Exceptions\InvalidUuidException;
 use Olssonm\Swish\Exceptions\ServerException;
 use Olssonm\Swish\Exceptions\ValidationException;
 use Olssonm\Swish\Payment;
+use Olssonm\Swish\Payout;
 use Olssonm\Swish\Refund;
 
 it('throws InvalidUuidException', function () {
@@ -14,12 +17,20 @@ it('throws InvalidUuidException', function () {
     new Payment(['id' => 'invalid-uuid']);
 });
 
-it('throws BadMethodCallException', function () {
+it('throws BadMethodCallException on Refund', function () {
     $this->expectException(\BadMethodCallException::class);
 
     $container = [];
     $client = get_mock_client(200, [], null, $container);
     $client->cancel(new Refund(['id' => '5D59DA1B1632424E874DDB219AD54597']));
+});
+
+it('throws BadMethodCallException on Payout', function () {
+    $this->expectException(\BadMethodCallException::class);
+
+    $container = [];
+    $client = get_mock_client(200, [], null, $container);
+    $client->cancel(new Payout(['payoutInstructionUUID' => '5D59DA1B1632424E874DDB219AD54597']));
 });
 
 it('throws ValidationException', function () {
@@ -34,7 +45,7 @@ it('throws ValidationException', function () {
             "id": "5D59DA1B1632424E874DDB219AD54597",
             "payeePaymentReference": "0123456789",
             "paymentReference": "1E2FC19E5E5E4E18916609B7F8911C12",
-            "callbackUrl": "",
+            "callbackUrl": "https://example.com/callback",
             "payerAlias": "4671234768",
             "payeeAlias": "1231181189",
             "amount": 100.00,
@@ -94,4 +105,23 @@ it('throws CallbackDecodingException on invalid', function () {
 it('throws CallbackDecodingException on null', function () {
     $this->expectException(CallbackDecodingException::class);
     Callback::parse(null);
+});
+
+it('throws CertificateDecodingException when hashing with bad signing certificate', function () {
+    $this->expectException(CertificateDecodingException::class);
+
+    $container = [];
+    $payout = new Payout();
+    $client = get_mock_client(200, [], null, $container, false);
+    $client->create($payout);
+});
+
+it('throws CertificateDecodingException when fetching serial with bad signing certificate', function () {
+    $this->expectException(CertificateDecodingException::class);
+
+    $certificate = new Certificate(
+        null, null, true, null
+    );
+
+    $certificate->getSerial();
 });

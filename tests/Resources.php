@@ -3,6 +3,7 @@
 use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Payout;
+use Olssonm\Swish\PayoutResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
 use Olssonm\Swish\Util\Uuid;
@@ -32,7 +33,7 @@ it('can fetch payment', function () {
             "id": "' . $id . '",
             "payeePaymentReference": "0123456789",
             "paymentReference": "1E2FC19E5E5E4E18916609B7F8911C12",
-            "callbackUrl": "https://example.com/api/swishcb/paymentrequests",
+            "callbackUrl": "https://example.com/callback",
             "payerAlias": "4671234768",
             "payeeAlias": "1231181189",
             "amount": 100.00,
@@ -67,7 +68,7 @@ it('can make payment', function () {
     $payment->currency = 'SEK';
     $payment->payee = '123456789';
     $payment->payeeAlias = '1234679304';
-    $payment->callbackUrl = 'https://example.com';
+    $payment->callbackUrl = 'https://example.com/callback';
 
     $container = [];
     $client = get_mock_client(201, [
@@ -99,7 +100,7 @@ it('can make cancel payment request', function () {
             "id":"5D59DA1B1632424E874DDB219AD54597",
             "payeePaymentReference":"0123456789",
             "paymentReference":"1E2FC19E5E5E4E18916609B7F8911C12",
-            "callbackUrl": "https://example.com/api/swishcb/paymentrequests",
+            "callbackUrl": "https://example.com/callback",
             "payerAlias":"4671234768",
             "payeeAlias":"1231181189",
             "amount":100.00,
@@ -177,6 +178,73 @@ it('can work with Payout-object', function () {
     $this->assertEquals('{"payoutInstructionUUID":"' . $id . '","currency":"SEK","payoutType":"PAYOUT"}', json_encode($payout));
 });
 
-it('can make payout', function () {
+it('can fetch payout', function () {
+    $id = UUID::make();
+    $payout = new Payout([
+        'payoutInstructionUUID' => $id
+    ]);
 
+    $container = [];
+    $client = get_mock_client(
+        200,
+        [],
+        '{
+            "paymentReference": "43DA7306F8DA426D8D7F82C939721031",
+            "payoutInstructionUUID": "' . $id . '",
+            "payerPaymentReference": "orderId",
+            "callbackUrl": "https://example.com/callback",
+            "payerAlias": "1234679304",
+            "payeeAlias": "46768648198",
+            "payeeSSN": "196210123235",
+            "amount": 200,
+            "currency": "SEK",
+            "message": "message",
+            "payoutType": "PAYOUT",
+            "status": "PAID",
+            "dateCreated": "2020-03-23T15: 17: 29.016Z",
+            "datePaid": "2020-03-23T15: 17: 33.016Z",
+            "errorMessage": null,
+            "additionalInformation": null,
+            "errorCode": null
+        }',
+        $container
+    );
+
+    $response = $client->get($payout);
+
+    $this->assertEquals(200, $container[0]['response']->getStatusCode());
+    $this->assertEquals('/swish-cpcapi/api/v1/payouts/' . $payout->payoutInstructionUUID, $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('GET', $container[0]['request']->getMethod());
+
+    $this->assertInstanceOf(Payout::class, $response);
+
+    $this->assertEquals('PAID', $response->status);
+    $this->assertEquals($id, $response->payoutInstructionUUID);
+});
+
+it('can make payout', function () {
+    $id = UUID::make();
+    $payout = new Payout();
+    $payout->payoutInstructionUUID = $id;
+    $payout->amount = 100;
+    $payout->currency = 'SEK';
+    $payout->payee = '123456789';
+    $payout->payeeAlias = '1234679304';
+    $payout->callbackUrl = 'https://example.com/callback';
+
+    $container = [];
+    $client = get_mock_client(201, [
+        'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/payouts/' . $id,
+    ], null, $container);
+
+    $response = $client->create($payout);
+
+    $this->assertEquals(201, $container[0]['response']->getStatusCode());
+    $this->assertEquals('/swish-cpcapi/api/v1/payouts', $container[0]['request']->getUri()->getPath());
+    $this->assertEquals('POST', $container[0]['request']->getMethod());
+
+    $this->assertInstanceOf(PayoutResult::class, $response);
+
+    $this->assertEquals('https://mss.cpc.getswish.net/swish-cpcapi/api/v1/payouts/' . $id, $response->location);
+    $this->assertEquals($id, $response->payoutInstructionUUID);
 });

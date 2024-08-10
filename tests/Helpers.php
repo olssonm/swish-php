@@ -21,7 +21,7 @@ function get_real_client($certificate = null)
     return new Client($certificate, Client::TEST_ENDPOINT);
 }
 
-function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
+function get_mock_client($code, $expectedHeaders, $expectedBody, &$history, $signing = true)
 {
     $mock = new MockHandler([
         new Response($code, $expectedHeaders, $expectedBody),
@@ -29,7 +29,25 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history)
     $stack = HandlerStack::create($mock);
     $stack->push(Middleware::history($history));
 
-    return new Client(null, Client::TEST_ENDPOINT, new GuzzleHttpClient([
+    $certificate = null;
+
+    if ($signing) {
+        $certificate = new Certificate(
+            __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
+            'swish',
+            __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
+            __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.key',
+        );
+    } else {
+        $certificate = new Certificate(
+            __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
+            'swish',
+            __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
+        );
+    }
+
+
+    return new Client($certificate, Client::TEST_ENDPOINT, new GuzzleHttpClient([
         'handler' => $stack,
         'http_errors' => false,
         'curl' => [
