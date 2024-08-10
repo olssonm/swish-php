@@ -16,6 +16,15 @@ it('loads facade', function () {
     $this->assertTrue(is_a($facade, Client::class));
 });
 
+it('loads config', function () {
+    $this->assertArrayHasKey('swish', config());
+    $this->assertArrayHasKey('client', config('swish.certificates'));
+    $this->assertArrayHasKey('password', config('swish.certificates'));
+    $this->assertArrayHasKey('root', config('swish.certificates'));
+    $this->assertArrayHasKey('signing', config('swish.certificates'));
+    $this->assertArrayHasKey('endpoint', config('swish'));
+});
+
 test('can generate uuids', function () {
     $SwishUuid = Uuid::make();
     $this->assertEquals(32, strlen($SwishUuid));

@@ -18,4 +18,9 @@ abstract class TestCase extends OrchestraTestCase
             SwishServiceProvider::class
         ];
     }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+    }
 }
