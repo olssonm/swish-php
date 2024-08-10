@@ -2,3 +2,5 @@
 /.phpunit.result.cache
 .DS_Store
 /composer.lock
+/.phpunit.cache/test-results
+.phpunit.cache

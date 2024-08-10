@@ -25,7 +25,7 @@ You will need to have access to your Swish-certificates to use this package in p
 
 Read more about testing in their MSS-environment in their [official documentation](https://developer.swish.nu/documentation/environments#:~:text=the%20certificate%20again.-,Merchant%20Swish%20Simulator,-The%20Swish%20server). A quick rundown on using/creating Swish-certificates [is published here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
 
-When creating the client you will have to set which environment you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/v2`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
+When creating the client you will have to set which environment you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
 
 ``` php
 use Olssonm\Swish\Certificate;
