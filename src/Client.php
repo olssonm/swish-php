@@ -20,7 +20,7 @@ class Client
 {
     protected string $endpoint;
 
-    protected ?Certificate $certificate;
+    protected Certificate $certificate;
 
     /**
      * @var array<mixed>
@@ -38,7 +38,6 @@ class Client
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ) {
-        $this->certificate = $certificate;
         $this->setup($certificate, $endpoint, $client);
     }
 
@@ -47,6 +46,10 @@ class Client
         string $endpoint = self::PRODUCTION_ENDPOINT,
         ClientInterface $client = null
     ): void {
+
+        if ($certificate) {
+            $this->setCertificate($certificate);
+        }
 
         $handler = new HandlerStack();
         $handler->setHandler(new CurlHandler());
@@ -80,11 +83,22 @@ class Client
     /**
      * Return the clients call-history
      *
-     * @return ?Certificate
+     * @return Certificate
      */
-    public function getCertificate(): ?Certificate
+    public function getCertificate(): Certificate
     {
         return $this->certificate;
+    }
+
+    /**
+     * Set the certificate
+     *
+     * @param Certificate $certificate
+     * @return void
+     */
+    public function setCertificate(Certificate $certificate): void
+    {
+        $this->certificate = $certificate;
     }
 
     /**
@@ -101,7 +115,7 @@ class Client
             )
         ) {
             throw new InvalidArgumentException(
-                'Only Payment-, Payous- and Refund-objects are allowed as first argument'
+                'Only Payment-, Payout- and Refund-objects are allowed as first argument'
             );
         }
 

@@ -146,7 +146,7 @@ $client = new Client($certificate);
 $payout = $client->create(new Payout([]));
 ```
 
-Additionally your certificates (*note:* your client certificate, not signing certificate) serial needs to be supplied. You can either use the `Certificate`-class to handle on the fly:
+Additionally your certificates (*note:* your signing certificate, not client certificate) serial needs to be supplied. You can either use the `Certificate`-class to handle on the fly:
 
 ``` php
 $certificate = new Certificate(/**/);

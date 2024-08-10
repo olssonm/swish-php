@@ -4,8 +4,6 @@ namespace Olssonm\Swish;
 
 use Olssonm\Swish\Util\Uuid;
 
-use function PHPUnit\Framework\objectHasAttribute;
-
 /**
  * @property string $payoutInstructionUUID
  * @property string $payerPaymentReference

@@ -17,7 +17,7 @@ class Payouts extends AbstractResource
     /**
      * Retrieve a payout.
      *
-     * @param Payout $payment
+     * @param Payout $payout
      * @return Payout
      */
     public function get($payout): Payout

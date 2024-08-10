@@ -57,7 +57,7 @@ class Certificate
     }
 
     /**
-     * @return array
+     * @return array<string|null>
      */
     public function getSigningCertificate(): array
     {

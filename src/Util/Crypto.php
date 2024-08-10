@@ -25,10 +25,11 @@ class Crypto
      *
      * @param string $hash
      * @param string $certificate
+     * @param ?string $passphrase
      * @return string
      * @throws CertificateDecodingException
      */
-    public static function sign(string $hash, ?string $certificate, ?string $passphrase): string
+    public static function sign(string $hash, string $certificate, ?string $passphrase): string
     {
         $signature = null;
 
@@ -56,7 +57,7 @@ class Crypto
      * Hash and sign a payload.
      *
      * @param ArrayAccess $payload
-     * @param array $certificate
+     * @param array<string|null> $certificate
      * @return string
      */
     public static function hashAndSign(ArrayAccess $payload, array $certificate): string
@@ -68,7 +69,7 @@ class Crypto
         }
 
         $hash = self::hash($data);
-        $signature = self::sign($hash, $certificate[0], $certificate[1]);
+        $signature = self::sign($hash, $certificate[0] ?? '', $certificate[1]);
 
         return base64_encode($signature);
     }

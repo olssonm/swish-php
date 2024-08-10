@@ -8,7 +8,6 @@ use Olssonm\Swish\Client;
 use Olssonm\Swish\Exceptions\ClientException;
 use Olssonm\Swish\Exceptions\ServerException;
 use Olssonm\Swish\Exceptions\ValidationException;
-use Olssonm\Swish\Facades\Swish;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
