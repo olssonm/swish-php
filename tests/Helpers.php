@@ -15,7 +15,7 @@ function get_real_client($certificate = null)
             __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
             'swish',
             __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
-            __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.key',
+            __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.pem',
         );
     }
     return new Client($certificate, Client::TEST_ENDPOINT);
@@ -36,7 +36,7 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history, $sig
             __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
             'swish',
             __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
-            __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.key',
+            __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.pem',
         );
     } else {
         $certificate = new Certificate(

@@ -35,7 +35,8 @@ class Payouts extends AbstractResource
      */
     public function create($payout): PayoutResult
     {
-        $signature = Crypto::hashAndSign($payout, $this->swish->getCertificate()->getSigningCertificate());
+        $certificate = $this->swish->getCertificate()->getSigningCertificate();
+        $signature = Crypto::hashAndSign($payout, $certificate);
 
         $response = $this->request('POST', 'v1/payouts', [], (string) json_encode(
             [

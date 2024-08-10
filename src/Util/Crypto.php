@@ -28,18 +28,23 @@ class Crypto
      * @return string
      * @throws CertificateDecodingException
      */
-    public static function sign(string $hash, string $certificate): string
+    public static function sign(string $hash, ?string $certificate, ?string $passphrase): string
     {
         $signature = null;
 
         // Load your private key
-        $key = file_get_contents($certificate);
+        try {
+            $key = file_get_contents($certificate);
+        } catch (\Throwable $th) {
+            throw new CertificateDecodingException('Failed to load certificate');
+        }
+
 
         if (!$key) {
             throw new CertificateDecodingException('Failed to load certificate');
         }
 
-        $id = openssl_get_privatekey($key);
+        $id = openssl_get_privatekey($key, $passphrase);
 
         // Sign the hash
         openssl_sign($hash, $signature, $id, OPENSSL_ALGO_SHA512); // @phpstan-ignore argument.type
@@ -51,10 +56,10 @@ class Crypto
      * Hash and sign a payload.
      *
      * @param ArrayAccess $payload
-     * @param ?string $certificate
+     * @param array $certificate
      * @return string
      */
-    public static function hashAndSign(ArrayAccess $payload, ?string $certificate): string
+    public static function hashAndSign(ArrayAccess $payload, array $certificate): string
     {
         $data = json_encode($payload);
 
@@ -63,7 +68,7 @@ class Crypto
         }
 
         $hash = self::hash($data);
-        $signature = self::sign($hash, $certificate);
+        $signature = self::sign($hash, $certificate[0], $certificate[1]);
 
         return base64_encode($signature);
     }

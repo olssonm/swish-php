@@ -14,6 +14,8 @@ class Certificate
 
     private ?string $signing;
 
+    private ?string $signingPassphrase;
+
     /**
      * Certificate constructor
      *
@@ -25,12 +27,14 @@ class Certificate
         ?string $clientPath,
         ?string $passphrase = null,
         bool|string $rootPath = true,
-        ?string $signingPath = null
+        ?string $signingPath = null,
+        string $signingPassphrase = null
     ) {
         $this->client = $clientPath;
         $this->passphrase = $passphrase;
         $this->root = $rootPath;
         $this->signing = $signingPath;
+        $this->signingPassphrase = $signingPassphrase;
     }
 
     /**
@@ -53,11 +57,14 @@ class Certificate
     }
 
     /**
-     * @return null|string
+     * @return array
      */
-    public function getSigningCertificate(): null|string
+    public function getSigningCertificate(): array
     {
-        return $this->signing;
+        return [
+            $this->signing,
+            $this->signingPassphrase,
+        ];
     }
 
     /**
@@ -66,7 +73,7 @@ class Certificate
     public function getSerial(): string
     {
         try {
-            $content = file_get_contents($this->client); // @phpstan-ignore argument.type
+            $content = file_get_contents($this->signing); // @phpstan-ignore argument.type
             $details = openssl_x509_read($content); // @phpstan-ignore argument.type
             $results = openssl_x509_parse($details); // @phpstan-ignore argument.type
             $serial = $results['serialNumberHex']; // @phpstan-ignore offsetAccess.nonOffsetAccessible

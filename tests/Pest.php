@@ -9,6 +9,6 @@ uses()->beforeEach(function () {
         'client' => __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
         'password' => 'swish',
         'root' => __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
-        'signing' => __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.key',
+        'signing' => __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.pem',
     ]);
 })->in(__DIR__);
