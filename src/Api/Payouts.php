@@ -20,9 +20,9 @@ class Payouts extends AbstractResource
      * @param Payout $payment
      * @return Payout
      */
-    public function get($payment): Payout
+    public function get($payout): Payout
     {
-        $response = $this->request('GET', sprintf('v1/paymentrequests/%s', $payment->id));
+        $response = $this->request('GET', sprintf('v1/payouts/%s', $payout->payoutInstructionUUID));
 
         return new Payout(json_decode((string) $response->getBody(), true));
     }

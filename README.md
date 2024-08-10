@@ -240,6 +240,8 @@ class SwishController
             // Handle payment callback
         } else if(get_class($data) == \Olssonm\Swish\Refund::class) {
             // Handle refund callback
+        } else if(get_class($data) == \Olssonm\Swish\Payout::class) {
+            // Handle payout callback
         }
     }
 }
