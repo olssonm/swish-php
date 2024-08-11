@@ -9,7 +9,7 @@ A simple and easy to use wrapper for the Swish-API in PHP. Also includes provide
 
 ## Prerequisites
 
-This package supports PHP ^8.1, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the cURL and SSL-extensions (in an abosolute majority of cases they should be available per default.)
+This package supports PHP ^8.1, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the cURL and SSL extensions (in an absolute majority of cases, they should be available by default).
 
 *Using PHP 7.4 or 8.0? v1.0 has support for these.*
 
@@ -25,7 +25,7 @@ You will need to have access to your Swish-certificates to use this package in p
 
 Read more about testing in their MSS-environment in their [official documentation](https://developer.swish.nu/documentation/environments#:~:text=the%20certificate%20again.-,Merchant%20Swish%20Simulator,-The%20Swish%20server). A quick rundown on using/creating Swish-certificates [is published here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
 
-When creating the client you will have to set which environment you are working with (otherwise it defaults to production-environment, `https://cpc.getswish.net/swish-cpcapi/api/`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
+When creating the client, you will have to set which environment you are working with (otherwise it defaults to the production environment, `https://cpc.getswish.net/swish-cpcapi/api/`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
 
 ``` php
 use Olssonm\Swish\Certificate;
@@ -35,7 +35,7 @@ $certificate = new Certificate(
     '/path/to/client.pem', 
     'client-passphrase',
     '/path/to/root.pem', // Can also be omitted for "true" to verify peer
-    '/path/to/signing.key' // Path to signing certificate, only used for payouts
+    '/path/to/signing.key', // Path to signing certificate, only used for payouts
     'signing-passphrase' // Only used for payouts
 );
 $client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
@@ -49,7 +49,7 @@ With the Laravel service provider and facades you can work with the package more
 php artisan vendor:publish --provider="Olssonm\Swish\Providers\SwishServiceProvider"
 ```
 
-In `/config/swish.php` you can then set your details accordingly:
+In `/config/swish.php`, you can then set your details accordingly:
 
 ``` php
 return [
@@ -134,7 +134,7 @@ $payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
 > [!TIP]
 > Read more about [payouts](https://developer.swish.nu/api/payouts/v1) in the official documentation
 
-Payouts need to be signed with a signing certificate before being sent to Swish – don't worry though, this package will handle most of this automatically 🤓. Just make sure that the path to your signing certificate is set:
+Payouts need to be hashed using SHA512 and signed with a signing certificate before being sent to Swish – don't worry though, this package will handle most of this automatically. Just make sure that the path to your signing certificate is set:
 
 ``` php
 $certificate = new Certificate(
@@ -149,7 +149,7 @@ $client = new Client($certificate);
 $payout = $client->create(new Payout([]));
 ```
 
-Additionally your certificates (*note:* your signing certificate, not client certificate) serial needs to be supplied. You can either use the `Certificate`-class to handle on the fly:
+Additionally your certificate's (*note:* your signing certificate, not your client certificate) serial needs to be supplied. You can either use the `Certificate`-class to handle on the fly:
 
 ``` php
 $certificate = new Certificate(/**/);
@@ -166,7 +166,8 @@ $payout = new Payout([
 ])
 ```
 
-Note that Payouts uses `payoutInstructionUUID` instead of an `ID`, you should [set this yourself to keep track of it](#regarding-idsuuids). If it's missing, it will be set automatically on creation.
+> [!IMPORTANT]  
+> Note that Payouts uses `payoutInstructionUUID` instead of an `ID`, you should [set this yourself to keep track of it](#regarding-idsuuids). If it's missing, it will be set automatically upon creation.
 
 ### Regarding IDs/UUIDs
 
@@ -182,18 +183,22 @@ $payment = new Payment([
 ]);
 ```
 
+When generating the UUIDs on the fly, the package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC4122 (v4) UUIDs. Swish accepts V1, 3, 4 and 5 UUIDs if you chose to set your own UUIDs.
+
 If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` will be thrown.
 
-*Note 1:* Wheter you set a default UUID or one in the Swish-format – it will <u>always</u> be formatted for Swish automatically (dashes removed and in uppercase).  
-*Note 2:* This package uses [Ramsey/Uuid](https://github.com/ramsey/uuid) to generate RFC4122 (v4) UUIDs on the fly. Swish accepts V1, 3, 4 and 5 UUIDs if you chose to set your own UUIDs.
+> [!NOTE] 
+> No matter if you set your own UUID och let the package handle the generation, the UUID will <u>always</u> be formatted for Swish automatically (dashes removed and in uppercase). 
 
 ### Available methods
 
-This package handles the most common Swish-related tasks; retrieve, make and cancel payments. Additionally refunds can be created and retrieved as well. All of them are performed via `Olssonm\Swish\Client`;
+This package handles the most common Swish-related tasks; retrieve, make and cancel payments. Retrieve and create payouts, aswell as refunds can be created and retrieved. All of them are performed via `Olssonm\Swish\Client`;
 
-`$client->get(Payment $payment | Refund $refund | Payout $payout);`  
-`$client->create(Payment $payment | Refund $refund | Payout $payout);`  
-`$client->cancel(Payment $payment);`
+``` php
+$client->get(Payment $payment | Refund $refund | Payout $payout);  
+$client->create(Payment $payment | Refund $refund | Payout $payout);  
+$client->cancel(Payment $payment);
+```
 
 ### Exception-handling
 
@@ -225,19 +230,19 @@ This package includes a simple helper to retrieve a `Payment`, `Refund` or `Payo
 ```php 
 use Olssonm\Swish\Callback;
 
-$paymentOrRefund = Callback::parse($content = null);
+$paymentOrRefund = Callback::parse();
 
 // get_class($paymentOrRefund) = \Olssonm\Swish\Payment::class, \Olssonm\Swish\Refund::class, \Olssonm\Swish\Payout::class
 ```
 
-The helper automatically retrieve the current HTTP-request. You may however inject your own data if needed (or if you for example has a Laravel request-object ready):
+The helper automatically retrieve the current HTTP-request (via `file_get_contents('php://input')`). You may however inject your own data if needed (or if you for example has a Laravel request-object ready):
 
 ```php
 class SwishController 
 {
     public function Callback(Request $request)
     {
-        $data = Callback::parse($content = $request->getContent());
+        $data = Callback::parse($request->getContent());
 
         if(get_class($data) == \Olssonm\Swish\Payment::class) {
             // Handle payment callback
@@ -250,9 +255,10 @@ class SwishController
 }
 ```
 
-*Note: in a real world scenario you probably want to use separate callback-urls for your refunds, payouts and payments to prevent unnecessary parsing as the example above* 
+*In a real world scenario you probably want to use separate callback-urls for your refunds, payouts and payments to prevent unnecessary parsing as the example above.*
 
-Please note that the callback from Swish is not encrypted or encoded in any way, instead you should make sure that the callback is coming from a [valid IP-range](https://developer.swish.nu/documentation/environments). 
+> [!CAUTION]
+> Please note that the callback from Swish is not encrypted or encoded in any way , instead you should make sure that the callback is coming from a [valid IP-range](https://developer.swish.nu/documentation/environments). 
 
 ## License
 
