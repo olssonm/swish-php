@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.0 - 2024-08-12
+
+Adds the ability to perform payouts. v3.0 will in most (if not all) cases be backwards compatible with v2.2. However, please [review the upgrade guide](https://github.com/olssonm/swish-php/blob/main/UPGRADE.md) and the [changelog](https://github.com/olssonm/swish-php/blob/main/CHANGELOG.md) for other changes and updates.
+
+### What's Changed
+
+* Add payouts by @olssonm in https://github.com/olssonm/swish-php/pull/8
+* Fix capitalization of FUNDING.yml by @olssonm in https://github.com/olssonm/swish-php/pull/10
+* Update Laravel integration by @vinkla in https://github.com/olssonm/swish-php/pull/12
+* Add SWISH_URL in config by @olssonm in https://github.com/olssonm/swish-php/pull/14
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v2.2...v3.0
+
 ## v2.2 - 2024-06-20
 
 ### What's Changed
