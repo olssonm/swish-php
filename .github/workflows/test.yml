@@ -27,7 +27,7 @@ jobs:
         run: composer self-update --2
 
       - name: Install dependencies
-        run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress --no-suggest
+        run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress
 
       - name: Execute tests
         run: composer test
