@@ -1,0 +1,71 @@
+name: Run tests
+
+on: [push, pull_request]
+
+jobs:
+  coding-standards:
+    name: "Coding Standards"
+
+    runs-on: "ubuntu-latest"
+
+    strategy:
+      matrix:
+        php:
+          - "8.3"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4.1.7"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Update composer
+        run: composer self-update --2
+
+      - name: "Install dependencies"
+        run: "composer install --no-interaction --no-progress"
+
+      - name: "Run normalize"
+        run: "composer normalize --dry-run"
+
+  tests:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04]
+        laravel:
+          - 11.*
+        php:
+          - 8.2
+          - 8.3
+        dependency-version: [prefer-stable]
+        exclude:
+          - os: ubuntu-20.04
+        include:
+          - os: ubuntu-20.04
+            laravel: 10.*
+            php: 8.1
+
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} (${{ matrix.os }})
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Update composer
+        run: composer self-update --2
+
+      - name: Install dependencies
+        run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress
+
+      - name: Execute tests
+        run: composer test

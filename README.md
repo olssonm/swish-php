@@ -2,16 +2,16 @@
 
 [![Supported PHP-versions](https://img.shields.io/packagist/php-v/olssonm/swish-php?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/swish-php.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/olssonm/swish-php/test.yml?branch=main&style=flat-square)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/olssonm/swish-php/test.yaml?branch=main&style=flat-square)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
 A simple and easy to use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
 
 ## Prerequisites
 
-This package supports PHP ^8.1, as well as Laravel 7 and up to the latest version. PHP needs to be compiled with the cURL and SSL extensions (in an absolute majority of cases, they should be available by default).
+This package supports PHP ^8.1. Tested against Laravel 10 & 11. PHP needs to be compiled with the cURL and SSL extensions (in an absolute majority of cases, they should be available by default).
 
-*Using PHP 7.4 or 8.0? v1.0 has support for these.*
+*Using an older version of PHP or Laravel? Check out v1 and v2 of this package.*
 
 ## Installation
 
@@ -23,7 +23,7 @@ composer require olssonm/swish-php
 
 You will need to have access to your Swish-certificates to use this package in production. You can however use their testing/Merchant Swish Similator-environment without being a Swish-customer during development.
 
-Read more about testing in their MSS-environment in their [official documentation](https://developer.swish.nu/documentation/environments#:~:text=the%20certificate%20again.-,Merchant%20Swish%20Simulator,-The%20Swish%20server). A quick rundown on using/creating Swish-certificates [is published here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
+Read more about testing in their MSS-environment in their [official documentation](https://developer.swish.nu/documentation/environments#merchant-swish-simulator). A quick rundown on using/creating Swish-certificates [is published here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
 
 When creating the client, you will have to set which environment you are working with (otherwise it defaults to the production environment, `https://cpc.getswish.net/swish-cpcapi/api/`), you may use `Client::TEST_ENDPOINT` and `Client::PRODUCTION_ENDPOINT` for this:
 
@@ -40,6 +40,9 @@ $certificate = new Certificate(
 );
 $client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
 ```
+
+> [!IMPORTANT]  
+> The paths to the certificates should be absolute. You can use `realpath -s YOUR_CERT.pem` for this. 
 
 ### Laravel
 
