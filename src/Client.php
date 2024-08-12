@@ -31,6 +31,8 @@ class Client
 
     public const TEST_ENDPOINT = 'https://mss.cpc.getswish.net/swish-cpcapi/api/';
 
+    public const SANDBOX_ENDPOINT = 'https://staging.getswish.pub.tds.tieto.com/swish-cpcapi/api/';
+
     protected ClientInterface $client;
 
     public function __construct(
