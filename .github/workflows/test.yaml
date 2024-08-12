@@ -3,7 +3,35 @@ name: Run tests
 on: [push, pull_request]
 
 jobs:
-    php-tests:
+    coding-standards:
+      name: "Coding Standards"
+
+      runs-on: "ubuntu-latest"
+
+      strategy:
+          matrix:
+              php:
+                  - "8.3"
+
+      steps:
+          - name: "Checkout"
+            uses: "actions/checkout@v4.1.7"
+
+          - name: Setup PHP
+            uses: shivammathur/setup-php@v2
+            with:
+              php-version: ${{ matrix.php }}
+
+          - name: Update composer
+            run: composer self-update --2
+
+          - name: "Install dependencies"
+            run: "composer install --no-interaction --no-progress"
+
+          - name: "Run normalize"
+            run: "composer normalize --dry-run"
+
+    tests:
         runs-on: ${{ matrix.os }}
 
         strategy:
