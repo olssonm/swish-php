@@ -2,71 +2,38 @@
 
 namespace Olssonm\Swish\Providers;
 
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 
 class SwishServiceProvider extends ServiceProvider
 {
-    /**
-     * Path to config-file
-     *
-     * @var string
-     */
-    protected $config;
-
-    /**
-     * Constructor
-     *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @return void
-     */
-    public function __construct($app)
-    {
-        $this->config = __DIR__ . '/../config.php';
-
-        parent::__construct($app);
-    }
-
-    /**
-     * Register any package services.
-     *
-     * @return void
-     */
     public function register(): void
     {
-        // Publishing of configuration
-        $this->publishes([
-            $this->config => config_path('swish.php'),
-        ]);
+        $source = realpath($raw = __DIR__ . '/../../config/swish.php') ?: $raw;
 
-        // If the user doesn't set their own config, load default
-        $this->mergeConfigFrom(
-            $this->config,
-            'swish'
-        );
+        $this->publishes([$source => config_path('swish.php')]);
 
-        $this->app->singleton('swish', function () {
+        $this->mergeConfigFrom($source, 'swish');
+
+        $this->app->singleton('swish', function (Container $app): Client {
             $certificate = new Certificate(
-                clientPath: config('swish.certificates.client'),
-                passphrase: config('swish.certificates.password'),
-                rootPath: config('swish.certificates.root'),
-                signingPath: config('swish.certificates.signing'),
-                signingPassphrase: config('swish.certificates.signing_password'),
+                clientPath: $app['config']['swish.certificates.client'],
+                passphrase: $app['config']['swish.certificates.password'],
+                rootPath: $app['config']['swish.certificates.root'],
+                signingPath: $app['config']['swish.certificates.signing'],
+                signingPassphrase: $app['config']['swish.certificates.signing_password'],
             );
-            return new Client($certificate, config('swish.endpoint'));
+
+            return new Client($certificate, $app['config']['swish.endpoint']);
         });
 
-        $this->app->bind(Client::class, 'swish');
+        $this->app->alias('swish', Client::class);
     }
 
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array<string>
-     * @codeCoverageIgnore
-     */
-    public function provides()
+    /** @codeCoverageIgnore */
+    public function provides(): array
     {
         return ['swish'];
     }
