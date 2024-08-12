@@ -9,22 +9,21 @@ use Olssonm\Swish\Client;
 
 class SwishServiceProvider extends ServiceProvider
 {
-    public function boot(): void
+    public function register(): void
     {
         $source = realpath($raw = __DIR__ . '/../../config/swish.php') ?: $raw;
 
         $this->publishes([$source => config_path('swish.php')]);
 
         $this->mergeConfigFrom($source, 'swish');
-    }
 
-    public function register(): void
-    {
         $this->app->singleton('swish', function (Container $app): Client {
             $certificate = new Certificate(
                 clientPath: $app['config']['swish.certificates.client'],
                 passphrase: $app['config']['swish.certificates.password'],
-                rootPath: $app['config']['swish.certificates.root']
+                rootPath: config('swish.certificates.root'),
+                signingPath: config('swish.certificates.signing'),
+                signingPassphrase: config('swish.certificates.signing_password')
             );
 
             return new Client($certificate, $app['config']['swish.endpoint']);
