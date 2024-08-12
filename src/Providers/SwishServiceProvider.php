@@ -23,7 +23,7 @@ class SwishServiceProvider extends ServiceProvider
                 passphrase: $app['config']['swish.certificates.password'],
                 rootPath: $app['config']['swish.certificates.root'],
                 signingPath: $app['config']['swish.certificates.signing'],
-                signingPassphrase: $app['config']['swish.certificates.signing_password])
+                signingPassphrase: $app['config']['swish.certificates.signing_password'],
             );
 
             return new Client($certificate, $app['config']['swish.endpoint']);
