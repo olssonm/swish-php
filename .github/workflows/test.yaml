@@ -3,66 +3,69 @@ name: Run tests
 on: [push, pull_request]
 
 jobs:
-    coding-standards:
-      name: "Coding Standards"
+  coding-standards:
+    name: "Coding Standards"
 
-      runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-latest"
 
-      strategy:
-          matrix:
-              php:
-                  - "8.3"
+    strategy:
+      matrix:
+        php:
+          - "8.3"
 
-      steps:
-          - name: "Checkout"
-            uses: "actions/checkout@v4.1.7"
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4.1.7"
 
-          - name: Setup PHP
-            uses: shivammathur/setup-php@v2
-            with:
-              php-version: ${{ matrix.php }}
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
 
-          - name: Update composer
-            run: composer self-update --2
+      - name: Update composer
+        run: composer self-update --2
 
-          - name: "Install dependencies"
-            run: "composer install --no-interaction --no-progress"
+      - name: "Install dependencies"
+        run: "composer install --no-interaction --no-progress"
 
-          - name: "Run normalize"
-            run: "composer normalize --dry-run"
+      - name: "Run normalize"
+        run: "composer normalize --dry-run"
 
-    tests:
-        runs-on: ${{ matrix.os }}
+  tests:
+    runs-on: ${{ matrix.os }}
 
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-                php: [8.2,8.3]
-                laravel: [11.*]
-                dependency-version: [prefer-stable]
-                include:
-                    - laravel: 10.*
-                      php: 8.1
-                    - os: ubuntu-20.04
-                      laravel: 10.*
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        laravel:
+          - 11.*
+        php:
+          - 8.2
+          - 8.3
+        dependency-version: [prefer-stable]
+        include:
+          - laravel: 10.*
+            php: 8.1
+          - os: ubuntu-20.04
+            laravel: 10.*
 
+    name: ${{ matrix.os }}, PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
 
-        name: ${{ matrix.os }}, PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
+      - name: Update composer
+        run: composer self-update --2
 
-            - name: Update composer
-              run: composer self-update --2
+      - name: Install dependencies
+        run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress
 
-            - name: Install dependencies
-              run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress
-
-            - name: Execute tests
-              run: composer test
+      - name: Execute tests
+        run: composer test
