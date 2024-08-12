@@ -1,6 +1,45 @@
 # Upgrade guide
 
-## v1.0 - v2.0
+## v2.x - v3.0
+
+### Overview
+
+v3.0 introduces the ability to perform payouts via the Swish-API. To enable this, a signing certificate has to be used, and therefore the usage of the `Olssonm\Swish\Certificate`-class been somewhat altered.
+
+Additionally, the `Olssonm\Swish\Util\Crypto` and `Olssonm\Swish\Util\Time` utilities has been added to enable the necessary signing of payloads for the payouts.
+
+All other methods for creating and retrieving payments and refunds are intact.
+
+### Changes
+
+`Olssonm\Swish\Certificate` now accepts additional parameters – the path to your signing certificate and it's (optional) passphrase:
+
+``` php
+$certificate = new Certificate( 
+    '/path/to/client.pem', 
+    'client-passphrase',
+    '/path/to/root.pem', 
+    '/path/to/signing.key', // <-- New
+    'signing-passphrase' // <-- New
+);
+```
+
+Please note that they can be omitted if you are not planning to use the Payout-features.
+
+If you're using Laravel and publish the config, you should add the `signing`-key to the swish.php-config:
+
+``` php
+return [
+    'certificates' => [
+        /* ... */
+        'signing' => env('SWISH_SIGNING_CERTIFICATE_PATH', null),
+        'signing_password' => env('SWISH_SIGNING_CERTIFICATE_PASSWORD', null),
+    ],
+    'endpoint' => \Olssonm\Swish\Client::PRODUCTION_ENDPOINT,
+]
+```
+
+## v1.x - v2.0
 
 ### Overview
 v2.0 uses pem-certificates to simplify the handling for the authorization chain with Swish.

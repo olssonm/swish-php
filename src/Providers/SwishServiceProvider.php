@@ -50,7 +50,9 @@ class SwishServiceProvider extends ServiceProvider
             $certificate = new Certificate(
                 clientPath: config('swish.certificates.client'),
                 passphrase: config('swish.certificates.password'),
-                rootPath: config('swish.certificates.root')
+                rootPath: config('swish.certificates.root'),
+                signingPath: config('swish.certificates.signing'),
+                signingPassphrase: config('swish.certificates.signing_password'),
             );
             return new Client($certificate, config('swish.endpoint'));
         });

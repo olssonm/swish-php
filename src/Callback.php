@@ -11,7 +11,7 @@ class Callback
     /**
      * @param string $content
      *
-     * @return Payment|Refund
+     * @return Payment|Refund|Payout
      */
     public static function parse($content = null)
     {
@@ -25,9 +25,10 @@ class Callback
             throw new CallbackDecodingException('Failed to decode JSON in Swish-callback', 0, $th);
         }
 
-        // If the key 'originalPaymentReference' is set, assume refund
-        if (isset($data['originalPaymentReference'])) {
+        if (isset($data['originalPaymentReference'])) { // If the key 'originalPaymentReference' is set, assume refund
             return new Refund($data);
+        } elseif (isset($data['payoutInstructionUUID'])) { // Assume payout if 'payoutInstructionUUID' is set
+            return new Payout($data);
         }
 
         return new Payment($data);

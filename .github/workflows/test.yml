@@ -9,14 +9,18 @@ jobs:
         strategy:
             matrix:
                 os: [ubuntu-latest,ubuntu-20.04]
-                php: [8.1,8.2]
-                laravel: [^9.0,^10.0]
+                php: [8.1,8.2,8.3]
+                laravel: [11.*, 10.*]
+                dependency-version: [prefer-stable]
+                exclude:
+                    - laravel: 11.*
+                      php: 8.1
 
         name: ${{ matrix.os }}, PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }}
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
@@ -27,7 +31,7 @@ jobs:
               run: composer self-update --2
 
             - name: Install dependencies
-              run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress --no-suggest
+              run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress
 
             - name: Execute tests
               run: composer test

@@ -4,19 +4,29 @@ namespace Olssonm\Swish\Api;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request as Psr7Request;
+use Olssonm\Swish\Client;
 use Olssonm\Swish\Exceptions\ClientException;
 use Olssonm\Swish\Exceptions\ServerException;
 use Olssonm\Swish\Exceptions\ValidationException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @mixin \Olssonm\Swish\Client
+ */
 abstract class AbstractResource
 {
     protected ClientInterface $client;
 
-    public function __construct(ClientInterface $client)
+    protected Client $swish;
+
+    public function __construct(ClientInterface $client, ?Client $swish = null)
     {
         $this->client = $client;
+
+        if ($swish) {
+            $this->swish = $swish;
+        }
     }
 
     /**
