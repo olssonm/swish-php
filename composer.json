@@ -42,7 +42,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-payouts": "3.0.x-dev"
+            "dev-main": "3.0.x-dev"
         },
         "laravel": {
             "providers": [
