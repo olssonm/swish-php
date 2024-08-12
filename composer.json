@@ -60,7 +60,7 @@
         }
     },
     "suggest":{
-        "illuminate/contracts": "Required to use the Laravel integration (^11.0).",
-        "illuminate/support": "Required to use the Laravel integration (^11.0)."
+        "illuminate/contracts": "Required to use the Laravel integration (^9.0|^10.0|^11.0).",
+        "illuminate/support": "Required to use the Laravel integration (^9.0|^10.0|^11.0)."
     }
 }
