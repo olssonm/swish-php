@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.1 - 2024-12-11
+
+### What's Changed
+
+* Support for PHP 8.4 by @olssonm in https://github.com/olssonm/swish-php/pull/16
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.0...v3.1
+
 ## v3.0 - 2024-08-12
 
 Adds the ability to perform payouts. v3.0 will in most (if not all) cases be backwards compatible with v2.2. However, please [review the upgrade guide](https://github.com/olssonm/swish-php/blob/main/UPGRADE.md) and the [changelog](https://github.com/olssonm/swish-php/blob/main/CHANGELOG.md) for other changes and updates.
