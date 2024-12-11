@@ -18,21 +18,24 @@ class SwishServiceProvider extends ServiceProvider
         $this->mergeConfigFrom($source, 'swish');
 
         $this->app->singleton('swish', function (Container $app): Client {
+            $config = $app->get('config');
             $certificate = new Certificate(
-                clientPath: $app['config']['swish.certificates.client'],
-                passphrase: $app['config']['swish.certificates.password'],
-                rootPath: $app['config']['swish.certificates.root'],
-                signingPath: $app['config']['swish.certificates.signing'],
-                signingPassphrase: $app['config']['swish.certificates.signing_password'],
+                clientPath: $config['swish.certificates.client'],
+                passphrase: $config['swish.certificates.password'],
+                rootPath: $config['swish.certificates.root'],
+                signingPath: $config['swish.certificates.signing'],
+                signingPassphrase: $config['swish.certificates.signing_password'],
             );
 
-            return new Client($certificate, $app['config']['swish.endpoint']);
+            return new Client($certificate, $config['swish.endpoint']);
         });
 
         $this->app->alias('swish', Client::class);
     }
 
-    /** @codeCoverageIgnore */
+    /**
+     * @return array<string>
+     */
     public function provides(): array
     {
         return ['swish'];
