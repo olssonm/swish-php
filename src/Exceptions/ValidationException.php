@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\RequestException;
 use Olssonm\Swish\Error;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class ValidationException extends RequestException
 {
@@ -22,8 +23,8 @@ class ValidationException extends RequestException
     public function __construct(
         string $message,
         RequestInterface $request,
-        ResponseInterface $response = null,
-        \Throwable $previous = null,
+        ?ResponseInterface $response = null,
+        ?Throwable $previous = null,
         array $handlerContext = []
     ) {
 

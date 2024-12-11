@@ -28,7 +28,7 @@ class Certificate
         ?string $passphrase = null,
         bool|string $rootPath = true,
         ?string $signingPath = null,
-        string $signingPassphrase = null
+        ?string $signingPassphrase = null
     ) {
         $this->client = $clientPath;
         $this->passphrase = $passphrase;

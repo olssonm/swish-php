@@ -36,17 +36,17 @@ class Client
     protected ClientInterface $client;
 
     public function __construct(
-        Certificate $certificate = null,
+        ?Certificate $certificate = null,
         string $endpoint = self::PRODUCTION_ENDPOINT,
-        ClientInterface $client = null
+        ?ClientInterface $client = null
     ) {
         $this->setup($certificate, $endpoint, $client);
     }
 
     public function setup(
-        Certificate $certificate = null,
+        ?Certificate $certificate = null,
         string $endpoint = self::PRODUCTION_ENDPOINT,
-        ClientInterface $client = null
+        ?ClientInterface $client = null
     ): void {
 
         if ($certificate) {
