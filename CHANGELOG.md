@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.2 - 2025-02-19
+
+Added support for Laravel 12. Dropped support for Laravel 10 and PHP 8.2.
+
+### What's Changed
+
+* Laravel 12.x Compatibility by @olssonm in https://github.com/olssonm/swish-php/pull/17
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.1...v3.2
+
 ## v3.1 - 2024-12-11
 
 ### What's Changed
