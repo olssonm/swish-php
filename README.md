@@ -77,6 +77,10 @@ This may also be a good place to keep you payee-alias, callback-url and such, wh
 
 It's recommended to store certificates in the `storage/app/private` directory, which is protected by default. Provide relative paths, as they will be automatically resolved from your Laravel application's `storage/app/private` directory.
 
+```env
+SWISH_CLIENT_CERTIFICATE_PATH=swish/client.pem # storage/app/private/swish/client.pem
+```
+
 ## Usage
 
 A typical case for creating a Swish-payment.
