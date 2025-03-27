@@ -3,6 +3,7 @@
 namespace Olssonm\Swish\Providers;
 
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
@@ -19,11 +20,12 @@ class SwishServiceProvider extends ServiceProvider
 
         $this->app->singleton('swish', function (Container $app): Client {
             $config = $app->get('config');
+
             $certificate = new Certificate(
-                clientPath: $config['swish.certificates.client'],
+                clientPath: Storage::path($config['swish.certificates.client']),
                 passphrase: $config['swish.certificates.password'],
-                rootPath: $config['swish.certificates.root'],
-                signingPath: $config['swish.certificates.signing'],
+                rootPath: Storage::path($config['swish.certificates.root']),
+                signingPath: Storage::path($config['swish.certificates.signing']),
                 signingPassphrase: $config['swish.certificates.signing_password'],
             );
 
