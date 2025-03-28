@@ -3,6 +3,7 @@
 namespace Olssonm\Swish\Providers;
 
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Support\ServiceProvider;
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
@@ -13,7 +14,7 @@ class SwishServiceProvider extends ServiceProvider
     {
         $source = realpath($raw = __DIR__ . '/../../config/swish.php') ?: $raw;
 
-        $this->publishes([$source => config_path('swish.php')]);
+        $this->publishes([$source => config_path('swish.php')], 'config');
 
         $this->mergeConfigFrom($source, 'swish');
 
@@ -21,26 +22,34 @@ class SwishServiceProvider extends ServiceProvider
             /** @var \Illuminate\Config\Repository $config */
             $config = $app->get('config');
 
-            /** @var \Illuminate\Filesystem\FilesystemAdapter $storage */
+            /** @var \Illuminate\Filesystem\FilesystemManager $storage */
             $storage = $app->get('filesystem');
 
             $certificate = new Certificate(
-                clientPath: $storage->path($config['swish.certificates.client']),
-                passphrase: $config['swish.certificates.password'],
-                rootPath: $storage->path($config['swish.certificates.root']),
-                signingPath: $storage->path($config['swish.certificates.signing']),
-                signingPassphrase: $config['swish.certificates.signing_password']
+                clientPath: $this->resolvePath($storage, $config->get('swish.certificates.client')),
+                passphrase: $config->get('swish.certificates.password'),
+                rootPath: $this->resolvePath($storage, $config->get('swish.certificates.root')),
+                signingPath: $this->resolvePath($storage, $config->get('swish.certificates.signing')),
+                signingPassphrase: $config->get('swish.certificates.signing_password')
             );
 
-            return new Client($certificate, $config['swish.endpoint']);
+            return new Client($certificate, $config->get('swish.endpoint'));
         });
 
         $this->app->alias('swish', Client::class);
     }
 
-    /**
-     * @return array<string>
-     */
+    private function resolvePath(FilesystemManager $storage, string $path): string
+    {
+        return $this->isAbsolutePath($path) ? $path : $storage->path($path);
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        return $path !== '' && ($path[0] === '/' || $path[0] === '\\' || (strlen($path) > 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === '\\' || $path[2] === '/')));
+    }
+
+    /** @return array<string> */
     public function provides(): array
     {
         return ['swish'];
