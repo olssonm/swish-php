@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.3 - 2025-03-31
+
+### What's Changed
+
+* Load certificated paths using Laravel's filesystem by @vinkla in https://github.com/olssonm/swish-php/pull/18
+* Add tests for the service provider by @olssonm in https://github.com/olssonm/swish-php/pull/19
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.2...v3.3
+
 ## v3.2 - 2025-02-19
 
 Added support for Laravel 12. Dropped support for Laravel 10 and PHP 8.2.
