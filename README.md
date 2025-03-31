@@ -75,6 +75,18 @@ return [
 
 This may also be a good place to keep you payee-alias, callback-url and such, which you can then access with `config('swish.payee_alias)` etc.
 
+For convenience and security, you can use relative paths to reference your certificates. Laravel will automatically resolve these paths from the `⁠storage/app/private` directory.
+
+```env
+SWISH_CLIENT_CERTIFICATE_PATH=swish/client.pem # storage/app/private/swish/client.pem
+```
+
+If you prefer to keep your certificates in a specific location outside the default storage directory, you can provide an absolute path. However, be aware that when using an absolute path, the package will not utilize the filesystem to resolve the relative path.
+
+```env
+SWISH_CLIENT_CERTIFICATE_PATH=/absolute/path/swish/client.pem
+```
+
 ## Usage
 
 A typical case for creating a Swish-payment.
