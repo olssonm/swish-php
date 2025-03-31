@@ -285,4 +285,4 @@ class SwishController
 
 The MIT License (MIT). Please see the [LICENSE](LICENSE) for more information.
 
-© 2022-2024 [Marcus Olsson](https://marcusolsson.me).
+© 2022-2025 [Marcus Olsson](https://marcusolsson.me).
