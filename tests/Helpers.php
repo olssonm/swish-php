@@ -62,3 +62,8 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history, $sig
         'base_uri' => Client::TEST_ENDPOINT,
     ]));
 }
+
+function get_facade_client()
+{
+    return app('swish');
+}
