@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.4 - 2025-04-15
+
+This release fixes a major flaw in v3.3 where the service provider could throw an exception when not using a signing-certificate for payouts.
+
+### What's Changed
+
+* Issue when resolving "null"-paths by @olssonm in https://github.com/olssonm/swish-php/pull/20
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.3...v3.4
+
 ## v3.3 - 2025-03-31
 
 ### What's Changed
