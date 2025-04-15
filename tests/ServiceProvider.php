@@ -3,6 +3,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\FilesystemManager;
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
+use Olssonm\Swish\Facades\Swish;
 use Olssonm\Swish\Providers\SwishServiceProvider;
 
 it('resolves absolute paths correctly', function () {
@@ -132,4 +133,17 @@ it('registers the swish singleton correctly', function () {
 it('provides the correct services', function () {
     $provider = new SwishServiceProvider(mock(Container::class));
     expect($provider->provides())->toBe(['swish']);
+});
+
+it('resolves facade with missing keys', function () {
+    // Expect the Swish facade to fail if the config keys are null
+    config()->set('swish.certificates.client', null);
+    config()->set('swish.certificates.password', null);
+    config()->set('swish.certificates.root', null);
+    config()->set('swish.certificates.signing', null);
+    config()->set('swish.certificates.signing_password', null);
+
+    // In <= v3.2 this threw an exception
+    $client = get_facade_client();
+    expect($client)->toBeInstanceOf(Client::class);
 });
