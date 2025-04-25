@@ -39,10 +39,10 @@ class SwishServiceProvider extends ServiceProvider
         $this->app->alias('swish', Client::class);
     }
 
-    private function resolvePath(FilesystemManager $storage, ?string $path): string
+    private function resolvePath(FilesystemManager $storage, ?string $path): bool|string
     {
         if (empty($path)) {
-            return '';
+            return false;
         }
 
         return $this->isAbsolutePath($path) ? $path : $storage->path($path);
