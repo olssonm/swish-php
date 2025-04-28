@@ -1,9 +1,7 @@
 <?php
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Filesystem\FilesystemManager;
-use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
-use Olssonm\Swish\Facades\Swish;
 use Olssonm\Swish\Providers\SwishServiceProvider;
 
 it('resolves absolute paths correctly', function () {
@@ -33,7 +31,6 @@ it('resolves relative paths correctly', function () {
     $method->setAccessible(true);
 
     expect($method->invoke($provider, $storage, 'relative/path/to/file'))->toBe('/resolved/path/to/file');
-    expect($method->invoke($provider, $storage, true))->toBe(true);
     expect($method->invoke($provider, $storage, ''))->toBe('');
     expect($method->invoke($provider, $storage, null))->toBe('');
 });
@@ -149,4 +146,18 @@ it('resolves facade with missing keys', function () {
     // In <= v3.2 this threw an exception
     $client = get_facade_client();
     expect($client)->toBeInstanceOf(Client::class);
+});
+
+it('resolves facade with true key', function () {
+    // Expect the Swish facade to fail if the config keys are null
+    config()->set('swish.certificates.client', '/path/to/client.pem');
+    config()->set('swish.certificates.password', 'swish');
+    config()->set('swish.certificates.root', true);
+    config()->set('swish.certificates.signing', '/path/to/signing.pem');
+    config()->set('swish.certificates.signing_password', 'swish');
+
+    // Test that $clients Certificate root is set to true
+    $client = get_facade_client();
+    expect($client)->toBeInstanceOf(Client::class);
+    expect($client->getCertificate()->getRootCertificate())->toBeTrue();
 });
