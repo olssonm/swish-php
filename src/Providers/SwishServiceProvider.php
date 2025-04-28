@@ -28,7 +28,7 @@ class SwishServiceProvider extends ServiceProvider
             $certificate = new Certificate(
                 clientPath: $this->resolvePath($storage, $config->get('swish.certificates.client')),
                 passphrase: $config->get('swish.certificates.password'),
-                rootPath: $config->get('swish.certificates.root') === true || $config->get('swish.certificates.root') === false
+                rootPath: is_bool($config->get('swish.certificates.root'))
                     ? $config->get('swish.certificates.root')
                     : $this->resolvePath($storage, $config->get('swish.certificates.root')),
                 signingPath: $this->resolvePath($storage, $config->get('swish.certificates.signing')),
