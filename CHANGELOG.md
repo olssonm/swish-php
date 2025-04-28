@@ -1,5 +1,19 @@
 # Changelog
 
+## v3.5 - 2025-04-28
+
+### What's Changed
+
+* Fix return type of resolvePath method to allow boolean by @vinkla in https://github.com/olssonm/swish-php/pull/21
+* Added callbackIdentifier property to Payment class by @jomla97 in https://github.com/olssonm/swish-php/pull/22
+* Test updates by @olssonm in https://github.com/olssonm/swish-php/pull/23
+
+### New Contributors
+
+* @jomla97 made their first contribution in https://github.com/olssonm/swish-php/pull/22
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.4...v3.5
+
 ## v3.4 - 2025-04-15
 
 This release fixes a major flaw in v3.3 where the service provider could throw an exception when not using a signing-certificate for payouts.
