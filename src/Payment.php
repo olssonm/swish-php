@@ -9,6 +9,7 @@ use Olssonm\Swish\Util\Uuid;
  * @property string $payeePaymentReference
  * @property string $paymentReference
  * @property string $callbackUrl
+ * @property string $callbackIdentifier
  * @property string $payerAlias
  * @property string $payeeAlias
  * @property string $amount
