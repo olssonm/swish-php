@@ -33,6 +33,9 @@ it('resolves relative paths correctly', function () {
     $method->setAccessible(true);
 
     expect($method->invoke($provider, $storage, 'relative/path/to/file'))->toBe('/resolved/path/to/file');
+    expect($method->invoke($provider, $storage, true))->toBe(true);
+    expect($method->invoke($provider, $storage, ''))->toBe('');
+    expect($method->invoke($provider, $storage, null))->toBe('');
 });
 
 it('checks absolute paths correctly', function () {

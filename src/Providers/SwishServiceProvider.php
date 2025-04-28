@@ -45,7 +45,7 @@ class SwishServiceProvider extends ServiceProvider
             return $path;
         }
 
-        if ($path === '' || $path === null) {
+        if (empty($path)) {
             return '';
         }
 
