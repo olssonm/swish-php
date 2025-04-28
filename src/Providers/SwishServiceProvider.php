@@ -28,7 +28,9 @@ class SwishServiceProvider extends ServiceProvider
             $certificate = new Certificate(
                 clientPath: $this->resolvePath($storage, $config->get('swish.certificates.client')),
                 passphrase: $config->get('swish.certificates.password'),
-                rootPath: $this->resolvePath($storage, $config->get('swish.certificates.root')),
+                rootPath: $config->get('swish.certificates.root') === true || $config->get('swish.certificates.root') === false
+                    ? $config->get('swish.certificates.root')
+                    : $this->resolvePath($storage, $config->get('swish.certificates.root')),
                 signingPath: $this->resolvePath($storage, $config->get('swish.certificates.signing')),
                 signingPassphrase: $config->get('swish.certificates.signing_password')
             );
@@ -39,13 +41,9 @@ class SwishServiceProvider extends ServiceProvider
         $this->app->alias('swish', Client::class);
     }
 
-    private function resolvePath(FilesystemManager $storage, bool|string|null $path): bool|string
+    private function resolvePath(FilesystemManager $storage, ?string $path): string
     {
-        if (is_bool($path)) {
-            return $path;
-        }
-
-        if ($path === '' || $path === null) {
+        if (empty($path)) {
             return '';
         }
 
