@@ -11,6 +11,11 @@ use Olssonm\Swish\Exceptions\ValidationException;
 use Olssonm\Swish\Payment;
 use Olssonm\Swish\Payout;
 use Olssonm\Swish\Refund;
+use Olssonm\Swish\Error;
+use Olssonm\Swish\Test\SigningCertificate;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 it('throws InvalidUuidException', function () {
     $this->expectException(InvalidUuidException::class);
@@ -71,6 +76,63 @@ it('throws ValidationException', function () {
     $this->assertEquals('PUT', $container[0]['request']->getMethod());
 });
 
+it('throws ValidationException and returns single error', function () {
+    $errorObject = [
+        'errorCode' => 'ERR123',
+        'errorMessage' => 'Something went wrong',
+        'additionalInformation' => 'More info',
+    ];
+    $responseBody = json_encode($errorObject);
+
+    $request = $this->createMock(RequestInterface::class);
+    $response = $this->createMock(ResponseInterface::class);
+    $stream = $this->createMock(StreamInterface::class);
+    $stream->method('getContents')->willReturn($responseBody);
+    $response->method('getBody')->willReturn($stream);
+
+    $exception = new ValidationException('Validation failed', $request, $response);
+    $errors = $exception->getErrors();
+    $this->assertCount(1, $errors);
+    $this->assertInstanceOf(Error::class, $errors[0]);
+    $this->assertEquals('ERR123', $errors[0]->errorCode);
+    $this->assertEquals('Something went wrong', $errors[0]->errorMessage);
+    $this->assertEquals('More info', $errors[0]->additionalInformation);
+});
+
+it('throws ValidationException and returns multiple errors', function () {
+    $errorArray = [
+        [
+            'errorCode' => 'ERR1',
+            'errorMessage' => 'First error',
+            'additionalInformation' => 'Info1',
+        ],
+        [
+            'errorCode' => 'ERR2',
+            'errorMessage' => 'Second error',
+            'additionalInformation' => 'Info2',
+        ],
+    ];
+    $responseBody = json_encode($errorArray);
+
+    $request = $this->createMock(RequestInterface::class);
+    $response = $this->createMock(ResponseInterface::class);
+    $stream = $this->createMock(StreamInterface::class);
+    $stream->method('getContents')->willReturn($responseBody);
+    $response->method('getBody')->willReturn($stream);
+
+    $exception = new ValidationException('Validation failed', $request, $response);
+    $errors = $exception->getErrors();
+    $this->assertCount(2, $errors);
+    $this->assertInstanceOf(Error::class, $errors[0]);
+    $this->assertEquals('ERR1', $errors[0]->errorCode);
+    $this->assertEquals('First error', $errors[0]->errorMessage);
+    $this->assertEquals('Info1', $errors[0]->additionalInformation);
+    $this->assertInstanceOf(Error::class, $errors[1]);
+    $this->assertEquals('ERR2', $errors[1]->errorCode);
+    $this->assertEquals('Second error', $errors[1]->errorMessage);
+    $this->assertEquals('Info2', $errors[1]->additionalInformation);
+});
+
 it('throws InvalidArgumentException', function () {
     $this->expectException(InvalidArgumentException::class);
 
@@ -107,13 +169,19 @@ it('throws CallbackDecodingException on null', function () {
     Callback::parse(null);
 });
 
-it('throws CertificateDecodingException when hashing with bad signing certificate', function () {
+it('throws CertificateDecodingException when hashing with empty signing certificate via Payout', function () {
     $this->expectException(CertificateDecodingException::class);
 
     $container = [];
     $payout = new Payout();
-    $client = get_mock_client(200, [], null, $container, false);
+    $client = get_mock_client(200, [], null, $container, SigningCertificate::FALSE);
     $client->create($payout);
+});
+
+it('throws CertificateDecodingException when hashing with empty signing certificate', function () {
+    $this->expectException(Olssonm\Swish\Exceptions\CertificateDecodingException::class);
+    $payload = new ArrayObject(['foo' => 'bar']);
+    \Olssonm\Swish\Util\Crypto::hashAndSign($payload, []);
 });
 
 it('throws CertificateDecodingException when fetching serial with bad signing certificate', function () {
@@ -124,4 +192,16 @@ it('throws CertificateDecodingException when fetching serial with bad signing ce
     );
 
     $certificate->getSerial();
+});
+
+it('throws CertificateDecodingException when signing with a bad certificate', function () {
+    $this->expectException(Olssonm\Swish\Exceptions\CertificateDecodingException::class);
+    $badCertPath = __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304_bad.pem';
+    \Olssonm\Swish\Util\Crypto::sign('testhash', $badCertPath, null);
+});
+
+it('throws CertificateDecodingException when signing with an unreadable (empty) certificate', function () {
+    $this->expectException(Olssonm\Swish\Exceptions\CertificateDecodingException::class);
+    $emptyCertPath = __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304_empty.pem';
+    \Olssonm\Swish\Util\Crypto::sign('testhash', $emptyCertPath, null);
 });

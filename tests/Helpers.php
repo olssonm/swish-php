@@ -7,6 +7,12 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
+use Olssonm\Swish\Test\SigningCertificate;
+
+const SIGNING_TRUE = 1;
+const SIGNING_FALSE = 2;
+const SIGNING_BAD = 3;
+
 
 function get_real_client($certificate = null)
 {
@@ -22,7 +28,7 @@ function get_real_client($certificate = null)
     return new Client($certificate, Client::TEST_ENDPOINT);
 }
 
-function get_mock_client($code, $expectedHeaders, $expectedBody, &$history, $signing = true)
+function get_mock_client($code, $expectedHeaders, $expectedBody, &$history, $signing = SigningCertificate::TRUE)
 {
     $mock = new MockHandler([
         new Response($code, $expectedHeaders, $expectedBody),
@@ -32,21 +38,27 @@ function get_mock_client($code, $expectedHeaders, $expectedBody, &$history, $sig
 
     $certificate = null;
 
-    if ($signing) {
+    if ($signing == SigningCertificate::TRUE) {
         $certificate = new Certificate(
             __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
             'swish',
             __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
             __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.pem',
         );
-    } else {
+    } else if ($signing == SigningCertificate::FALSE) {
         $certificate = new Certificate(
             __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
             'swish',
             __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
         );
+    } else if ($signing == SigningCertificate::BAD) {
+        $certificate = new Certificate(
+            __DIR__ . '/certificates/Swish_Merchant_TestCertificate_1234679304.pem',
+            '1',
+            __DIR__ . '/certificates/Swish_TLS_RootCA.pem',
+            __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304_bad.pem',
+        );
     }
-
 
     return new Client($certificate, Client::TEST_ENDPOINT, new GuzzleHttpClient([
         'handler' => $stack,

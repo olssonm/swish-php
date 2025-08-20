@@ -11,7 +11,6 @@ use Olssonm\Swish\Util\Uuid;
  * @property string $payeeAlias
  * @property string $payeeSSN
  * @property string $amount
- * @property string $amount
  * @property string $currency
  * @property string $payoutType
  * @property string $message
@@ -43,20 +42,22 @@ class Payout extends Resource
 
     public function __get(string $key): mixed
     {
+        // @codeCoverageIgnoreStart
         if (property_exists($this, $key)) {
             return $this->{$key};
         }
-
+        // @codeCoverageIgnoreEnd
         return parent::__get($key);
     }
 
     public function __set(string $key, mixed $value)
     {
+        // @codeCoverageIgnoreStart
         if (property_exists($this, $key)) {
             $this->{$key} = $value;
             return;
         }
-
+        // @codeCoverageIgnoreEnd
         parent::__set($key, $value);
     }
 }

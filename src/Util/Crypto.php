@@ -33,19 +33,20 @@ class Crypto
     {
         $signature = null;
 
-        // Load your private key
-        try {
-            $key = file_get_contents($certificate);
-        } catch (\Throwable $th) {
-            throw new CertificateDecodingException('Failed to load certificate');
+        if (!file_exists($certificate)) {
+            throw new CertificateDecodingException('Certificate file does not exist');
         }
 
-
+        // Load your private key
+        $key = file_get_contents($certificate);
         if (!$key) {
             throw new CertificateDecodingException('Failed to load certificate');
         }
 
         $id = openssl_get_privatekey($key, $passphrase);
+        if ($id === false) {
+            throw new CertificateDecodingException('Failed to decode private key');
+        }
 
         // Sign the hash
         openssl_sign($hash, $signature, $id, OPENSSL_ALGO_SHA512); // @phpstan-ignore argument.type

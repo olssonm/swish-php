@@ -20,7 +20,7 @@ class Uuid
     {
         $uuid = RamseyUuid::uuid4();
 
-        return self::format($uuid, $format);
+        return self::format((string) $uuid, $format);
     }
 
     /**
