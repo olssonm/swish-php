@@ -21,7 +21,7 @@
     includeUncoveredFiles="true"
     pathCoverage="false"
     ignoreDeprecatedCodeUnits="true"
-    disableCodeCoverageIgnore="true"
+    disableCodeCoverageIgnore="false"
   />
 
   <php>

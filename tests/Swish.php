@@ -4,6 +4,7 @@ use Olssonm\Swish\Certificate;
 use Olssonm\Swish\Client;
 use Olssonm\Swish\Providers\SwishServiceProvider;
 use Olssonm\Swish\Resource;
+use Olssonm\Swish\Facades\Swish;
 use Olssonm\Swish\Util\Uuid;
 
 it('loads package', function () {
@@ -14,6 +15,11 @@ it('loads package', function () {
 it('loads facade', function () {
     $facade = $this->app['swish'];
     $this->assertTrue(is_a($facade, Client::class));
+
+});
+
+it('resolves facade', function () {
+    $this->assertInstanceOf(Client::class, Swish::getFacadeRoot());
 });
 
 it('loads config', function () {
