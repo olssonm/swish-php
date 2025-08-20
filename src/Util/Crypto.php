@@ -49,7 +49,7 @@ class Crypto
         }
 
         // Sign the hash
-        openssl_sign($hash, $signature, $id, OPENSSL_ALGO_SHA512); // @phpstan-ignore argument.type
+        openssl_sign($hash, $signature, $id, OPENSSL_ALGO_SHA512);
 
         return $signature;
     }
