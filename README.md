@@ -5,13 +5,13 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/olssonm/swish-php/test.yaml?branch=main&style=flat-square)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-A simple and easy to use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
+A simple, easy-to-use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
 
 ## Prerequisites
 
-This package supports PHP ^8.1. Tested against Laravel 10 & 11. PHP needs to be compiled with the cURL and SSL extensions (in an absolute majority of cases, they should be available by default).
+This package supports PHP ^8.2. Tested against Laravel 11 & 12. PHP needs to be compiled with the cURL and SSL extensions (in an absolute majority of cases, they should be available by default).
 
-*Using an older version of PHP or Laravel? Check out v1 and v2 of this package.*
+*Using an older version of PHP or Laravel? Check out v1 and v2 of this package. Note however that Payouts are available from v3.*
 
 ## Installation
 
@@ -21,7 +21,7 @@ composer require olssonm/swish-php
 
 ## Setup
 
-You will need to have access to your Swish-certificates to use this package in production. You can however use their testing/Merchant Swish Similator-environment without being a Swish-customer during development.
+You will need to have access to your Swish-certificates to use this package in production. You can however use their testing/Merchant Swish Simulator environment without being a Swish-customer during development.
 
 Read more about testing in their MSS-environment in their [official documentation](https://developer.swish.nu/documentation/environments#merchant-swish-simulator). A quick rundown on using/creating Swish-certificates [is published here](https://marcusolsson.me/artiklar/hur-man-skapar-certifikat-for-swish) (in Swedish).
 
@@ -44,7 +44,7 @@ $certificate = new Certificate(
     '/path/to/signing.key', // Path to signing certificate, only used for payouts
     'signing-passphrase' // Only used for payouts
 );
-$client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT)
+$client = new Client($certificate, $endpoint = Client::TEST_ENDPOINT);
 ```
 
 > [!IMPORTANT]  
@@ -73,9 +73,9 @@ return [
 ];
 ```
 
-This may also be a good place to keep you payee-alias, callback-url and such, which you can then access with `config('swish.payee_alias)` etc.
+This may also be a good place to keep your payee-alias, callback-url and such, which you can then access with `config('swish.payee_alias')` etc.
 
-For convenience and security, you can use relative paths to reference your certificates. Laravel will automatically resolve these paths from the `⁠storage/app/private` directory.
+For convenience and security, you can use relative paths to reference your certificates. Laravel will automatically resolve these paths from the `storage/app/private` directory.
 
 ```env
 SWISH_CLIENT_CERTIFICATE_PATH=swish/client.pem # storage/app/private/swish/client.pem
@@ -147,7 +147,7 @@ $response = Swish::create(new Payment([
 Always when using the client, use the Payment and Refund-classes <u>even if only the ID is needed for the action</u>, i.e:
 
 ``` php
-$payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
+$payment = $client->get(new Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
 ```
 
 ### Payouts
@@ -155,7 +155,7 @@ $payment = $client->get(Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
 > [!TIP]
 > Read more about [payouts](https://developer.swish.nu/api/payouts/v1) in the official documentation
 
-Payouts need to be hashed using SHA512 and signed with a signing certificate before being sent to Swish – don't worry though, this package will handle most of this automatically. Just make sure that the path to your signing certificate is set:
+Payouts need to be hashed using SHA-512 and signed with a signing certificate before being sent to Swish – don't worry though, this package will handle most of this automatically. Just make sure that the path to your signing certificate is set:
 
 ``` php
 $certificate = new Certificate(
@@ -213,7 +213,7 @@ If an invalid UUID is used, a `Olssonm\Swish\Exceptions\InvalidUuidException` wi
 
 ### Available methods
 
-This package handles the most common Swish-related tasks; retrieve, make and cancel payments. Retrieve and create payouts, aswell as refunds can be created and retrieved. All of them are performed via `Olssonm\Swish\Client`;
+This package handles the most common Swish-related tasks; retrieve, make and cancel payments. Retrieve and create payouts, as well as refunds can be created and retrieved. All of them are performed via `Olssonm\Swish\Client`;
 
 ``` php
 $client->get(Payment $payment | Refund $refund | Payout $payout);  
@@ -256,7 +256,7 @@ $paymentOrRefund = Callback::parse();
 // get_class($paymentOrRefund) = \Olssonm\Swish\Payment::class, \Olssonm\Swish\Refund::class, \Olssonm\Swish\Payout::class
 ```
 
-The helper automatically retrieve the current HTTP-request (via `file_get_contents('php://input')`). You may however inject your own data if needed (or if you for example has a Laravel request-object ready):
+The helper automatically retrieves the current HTTP-request (via `file_get_contents('php://input')`). You may however inject your own data if needed (or if you for example have a Laravel request-object ready):
 
 ```php
 class SwishController 
@@ -279,7 +279,7 @@ class SwishController
 *In a real world scenario you probably want to use separate callback-urls for your refunds, payouts and payments to prevent unnecessary parsing as the example above.*
 
 > [!CAUTION]
-> Please note that the callback from Swish is not encrypted or encoded in any way , instead you should make sure that the callback is coming from a [valid IP-range](https://developer.swish.nu/documentation/environments). 
+> Please note that the callback from Swish is not encrypted or encoded in any way, instead you should make sure that the callback is coming from a [valid IP range](https://developer.swish.nu/documentation/environments). 
 
 ## License
 
