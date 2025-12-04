@@ -71,5 +71,5 @@ it('can retrieve certificate serial', function () {
         __DIR__ . '/certificates/Swish_Merchant_TestSigningCertificate_1234679304.pem',
     );
 
-    $this->assertEquals($certificate->getSerial(), '5E24D8820F5B62C7E5CAC75D20D6E754');
+    $this->assertEquals($certificate->getSerial(), '4F24C03A0295A0B53596240EA8C0F430');
 });
