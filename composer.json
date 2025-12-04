@@ -18,10 +18,10 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.43",
-        "orchestra/testbench": "^9.0 || ^10",
-        "pestphp/pest": "^2.0 || ^3.0",
+        "orchestra/testbench": "^9.0 || ^10.0 || ^11.0",
+        "pestphp/pest": "^3.0 || ^4.0",
         "phpstan/phpstan": "^1.10",
-        "phpunit/phpunit": "^10 || ^11.5.3",
+        "phpunit/phpunit": "^11.5.3 || ^12.3",
         "squizlabs/php_codesniffer": "^3.5"
     },
     "suggest": {

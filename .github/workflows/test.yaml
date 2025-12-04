@@ -32,20 +32,26 @@ jobs:
         run: "composer normalize --dry-run"
 
   tests:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        laravel:
-          - 11.*
-          - 12.*
-        php:
-          - 8.3
-          - 8.4
-        dependency-version: [prefer-stable]
+        include:
+          - laravel: '11.*'
+            php: '8.2'
+            testbench: '^9.0'
+          - laravel: '12.*'
+            php: '8.3'
+            testbench: '^10.0'
+          - laravel: '12.*'
+            php: '8.4'
+            testbench: '^10.0'
+          - laravel: '12.*'
+            php: '8.5'
+            testbench: '^10.0'
 
-    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} (${{ matrix.os }})
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} (ubuntu-latest)
 
     steps:
       - name: Checkout code
@@ -60,7 +66,7 @@ jobs:
         run: composer self-update --2
 
       - name: Install dependencies
-        run: composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-progress
+        run: composer require --dev "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-progress
 
       - name: Execute tests
         run: composer test
