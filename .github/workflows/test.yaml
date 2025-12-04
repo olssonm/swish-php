@@ -45,6 +45,13 @@ jobs:
           - 8.3
           - 8.4
           - 8.5
+        exclude:
+          - laravel: 11.*
+            php: 8.5
+          - laravel: 11.*
+            php: 8.3
+          - laravel: 12.*
+            php: 8.2
         dependency-version: [prefer-stable]
 
     name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} (${{ matrix.os }})
