@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.6 - 2025-12-04
+
+### What's Changed
+
+* Update conditional with `is_bool` function by @vinkla in https://github.com/olssonm/swish-php/pull/24
+* Test coverage by @olssonm in https://github.com/olssonm/swish-php/pull/25
+* Fix typos and examples by @olssonm in https://github.com/olssonm/swish-php/pull/26
+* Update .gitattributes to include phpunit.xml by @vinkla in https://github.com/olssonm/swish-php/pull/27
+* Update MMS-certificates by @olssonm in https://github.com/olssonm/swish-php/pull/28
+* Add tests for PHP 8.5 by @olssonm in https://github.com/olssonm/swish-php/pull/29
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.5...v3.6
+
 ## v3.5 - 2025-04-28
 
 ### What's Changed
