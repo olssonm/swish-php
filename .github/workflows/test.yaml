@@ -32,27 +32,23 @@ jobs:
         run: "composer normalize --dry-run"
 
   tests:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
         include:
-          - laravel: 11.*
-            php: 8.2
-            os: ubuntu-latest
-          - laravel: 12.*
-            php: 8.3
-            os: ubuntu-latest
-          - laravel: 12.*
-            php: 8.4
-            os: ubuntu-latest
-          - laravel: 12.*
-            php: 8.5
-            os: ubuntu-latest
+          - laravel: '11.*'
+            php: '8.2'
+          - laravel: '12.*'
+            php: '8.3'
+          - laravel: '12.*'
+            php: '8.4'
+          - laravel: '12.*'
+            php: '8.5'
         dependency-version: [prefer-stable]
 
-    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} (${{ matrix.os }})
+    name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} (ubuntu-latest)
 
     steps:
       - name: Checkout code
