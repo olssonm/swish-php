@@ -7,7 +7,7 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/olssonm/swish-php/test.yaml?branch=main&style=flat-square)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-A simple, easy-to-use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
+The leading Swish API-wrapper for PHP: minimal setup, rigorous tests, and Laravel providers built in.
 
 ## Prerequisites
 
@@ -265,7 +265,7 @@ This package handles the most common Swish-related tasks; retrieve, make and can
 
 ``` php
 $client->get(Payment $payment | Refund $refund | Payout $payout);  
-$client->create(Payment $payment | Refund $refund | Payout $payout);  
+$client->create(Payment $payment | Refund $refund | Payout $payout | QR $qr);  
 $client->cancel(Payment $payment);
 ```
 
@@ -333,7 +333,7 @@ class SwishController
 
 Testing is done via pest. Simply run `composer test` to run them.
 
-I take pride knowing that all code is tested. If you want to contribute, please make sure to add tests and to make sure that no tests fail.
+I take pride knowing that all code is tested and aim for 100% test coverage. If you want to contribute, please make sure to add tests and to make sure that no tests fail.
 
 ## License
 
