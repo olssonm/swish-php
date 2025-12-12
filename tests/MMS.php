@@ -5,6 +5,7 @@ use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Payout;
 use Olssonm\Swish\PayoutResult;
 use Olssonm\Swish\QR;
+use Olssonm\Swish\QRResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
 use Olssonm\Swish\Util\Time;
@@ -20,7 +21,6 @@ test('full chain of requests', function () {
         'amount' => 100,
         'paymentRefeference' => 'abc123',
         'currency' => 'SEK',
-        'payee' => '123456789',
         'message' => 'Kingston USB Flash Drive 8 GB',
         'callbackUrl' => 'https://example.com/callback',
         'payerAlias' => '4671234768',
@@ -87,7 +87,6 @@ test('full chain of requests', function () {
         'amount' => 100,
         'paymentRefeference' => 'abc123',
         'currency' => 'SEK',
-        'payee' => '123456789',
         'message' => 'Kingston USB Flash Drive 8 GB',
         'callbackUrl' => 'https://example.com/callback',
         'payeeAlias' => '1231181189',
@@ -97,8 +96,8 @@ test('full chain of requests', function () {
 
     $paymentResponse = $client->create($payment);
     $this->assertEquals(201, $client->getHistory()[0]['response']->getStatusCode());
-    $this->assertEquals($id, $response->id);
-    $this->assertEquals(get_class($response), PaymentResult::class);
+    $this->assertEquals($id, $paymentResponse->id);
+    $this->assertEquals(get_class($paymentResponse), PaymentResult::class);
 
     // Create QR
     $qr = new QR([
@@ -110,7 +109,12 @@ test('full chain of requests', function () {
 
     $qrResponse = $client->create($qr);
     $this->assertEquals(201, $client->getHistory()[0]['response']->getStatusCode());
+    $this->assertEquals(get_class($qrResponse), QRResult::class);
 
     // Save the image for inspection
-    file_put_contents(__DIR__ . '/images/qr-test.png', $qrResponse->data);
+    file_put_contents(__DIR__ . '/output/qr-test.png', $qrResponse->data);
+
+    // Save as .html with a base64 embedded image
+    $html = '<html><body><img src="data:' . $qrResponse->contentType . ';base64,' . base64_encode($qrResponse->data) . '"/></body></html>';
+    file_put_contents(__DIR__ . '/output/qr-test.html', $html);
 });

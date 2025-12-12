@@ -4,6 +4,8 @@ use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Payout;
 use Olssonm\Swish\PayoutResult;
+use Olssonm\Swish\QR;
+use Olssonm\Swish\QRResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
 use Olssonm\Swish\Util\Uuid;
@@ -66,14 +68,13 @@ it('can make payment', function () {
     $payment->id = $id;
     $payment->amount = 100;
     $payment->currency = 'SEK';
-    $payment->payee = '123456789';
     $payment->payeeAlias = '1234679304';
     $payment->callbackUrl = 'https://example.com/callback';
 
     $container = [];
     $client = get_mock_client(201, [
-        'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id,
-        'paymentrequesttoken' => 'my-token'
+        'Location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id,
+        'PaymentRequestToken' => 'my-token'
     ], null, $container);
 
     $response = $client->create($payment);
@@ -147,8 +148,8 @@ it('can make refund', function () {
 
     $container = [];
     $client = get_mock_client(201, [
-        'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id,
-        'paymentrequesttoken' => 'my-token',
+        'Location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id,
+        'PaymentRequestToken' => 'my-token',
     ], null, $container);
 
     $response = $client->create($refund);
@@ -228,13 +229,12 @@ it('can make payout', function () {
     $payout->payoutInstructionUUID = $id;
     $payout->amount = 100;
     $payout->currency = 'SEK';
-    $payout->payee = '123456789';
     $payout->payeeAlias = '1234679304';
     $payout->callbackUrl = 'https://example.com/callback';
 
     $container = [];
     $client = get_mock_client(201, [
-        'location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/payouts/' . $id,
+        'Location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/payouts/' . $id,
     ], null, $container);
 
     $response = $client->create($payout);
@@ -247,4 +247,40 @@ it('can make payout', function () {
 
     $this->assertEquals('https://mss.cpc.getswish.net/swish-cpcapi/api/v1/payouts/' . $id, $response->location);
     $this->assertEquals($id, $response->payoutInstructionUUID);
+});
+
+it('can make qr', function () {
+    $id = UUID::make();
+    $payment = new Payment();
+    $payment->id = $id;
+    $payment->amount = 100;
+    $payment->currency = 'SEK';
+    $payment->payeeAlias = '1234679304';
+    $payment->callbackUrl = 'https://example.com/callback';
+
+    $container = [];
+    $client = get_mock_client(201, [
+        'Location' => 'https://mss.cpc.getswish.net/swish-cpcapi/api/v1/paymentrequests/' . $id,
+        'PaymentRequestToken' => '1234567890abcdef'
+    ], null, $container);
+
+    $response = $client->create($payment);
+
+    $qr = new QR([
+        'token' => $response->paymentRequestToken,
+        'format' => 'png',
+    ]);
+
+    $container = [];
+    $client = get_mock_client(201, [
+        'Location' => 'https://mpc.getswish.net/qrg-swish/api/v1/commerce',
+        'Content-Type' => 'image/png'
+    ], file_get_contents(__DIR__ . '/dummy/qr.png'), $container);
+
+    $response = $client->create($qr);
+
+    $this->assertInstanceOf(QRResult::class, $response);
+    $this->assertEquals(file_get_contents(__DIR__ . '/dummy/qr.png'), (string) $response->data);
+    $this->assertEquals('image/png', $response->contentType);
+    $this->assertEquals('png', $response->format);
 });

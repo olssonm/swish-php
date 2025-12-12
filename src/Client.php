@@ -16,6 +16,8 @@ use Olssonm\Swish\Api\QRs;
 /**
  * @mixin \Olssonm\Swish\Api\Payments
  * @mixin \Olssonm\Swish\Api\Refunds
+ * @mixin \Olssonm\Swish\Api\Payouts
+ * @mixin \Olssonm\Swish\Api\QRs
  */
 class Client
 {
