@@ -2,6 +2,7 @@
 
 use Olssonm\Swish\Callback;
 use Olssonm\Swish\Certificate;
+use Olssonm\Swish\Error;
 use Olssonm\Swish\Exceptions\CallbackDecodingException;
 use Olssonm\Swish\Exceptions\CertificateDecodingException;
 use Olssonm\Swish\Exceptions\ClientException;
@@ -10,8 +11,8 @@ use Olssonm\Swish\Exceptions\ServerException;
 use Olssonm\Swish\Exceptions\ValidationException;
 use Olssonm\Swish\Payment;
 use Olssonm\Swish\Payout;
+use Olssonm\Swish\QR;
 use Olssonm\Swish\Refund;
-use Olssonm\Swish\Error;
 use Olssonm\Swish\Test\SigningCertificate;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -36,6 +37,22 @@ it('throws BadMethodCallException on Payout', function () {
     $container = [];
     $client = get_mock_client(200, [], null, $container);
     $client->cancel(new Payout(['payoutInstructionUUID' => '5D59DA1B1632424E874DDB219AD54597']));
+});
+
+it('throws BadMethodCallException on QR get', function () {
+    $this->expectException(\BadMethodCallException::class);
+
+    $container = [];
+    $client = get_mock_client(200, [], null, $container);
+    $client->get(new QR(['token' => 'my-token']));
+});
+
+it('throws BadMethodCallException on QR cancel', function () {
+    $this->expectException(\BadMethodCallException::class);
+
+    $container = [];
+    $client = get_mock_client(200, [], null, $container);
+    $client->cancel(new QR(['token' => 'my-token']));
 });
 
 it('throws ValidationException', function () {

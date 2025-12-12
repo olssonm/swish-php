@@ -7,11 +7,11 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use Olssonm\Swish\Api\Payments;
-use Olssonm\Swish\Api\Refunds;
 use InvalidArgumentException;
+use Olssonm\Swish\Api\Payments;
 use Olssonm\Swish\Api\Payouts;
 use Olssonm\Swish\Api\QRs;
+use Olssonm\Swish\Api\Refunds;
 
 /**
  * @mixin \Olssonm\Swish\Api\Payments
@@ -122,7 +122,7 @@ class Client
             )
         ) {
             throw new InvalidArgumentException(
-                'Only Payment-, Payout- and Refund-objects are allowed as first argument'
+                'Only Payment-, Payout-, Refund- and QR-objects are allowed as first argument'
             );
         }
 

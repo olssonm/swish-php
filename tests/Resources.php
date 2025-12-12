@@ -280,6 +280,7 @@ it('can make qr', function () {
     $response = $client->create($qr);
 
     $this->assertInstanceOf(QRResult::class, $response);
+    $this->assertEquals(file_get_contents(__DIR__ . '/dummy/qr.png'), (string) $response);
     $this->assertEquals(file_get_contents(__DIR__ . '/dummy/qr.png'), (string) $response->data);
     $this->assertEquals('image/png', $response->contentType);
     $this->assertEquals('png', $response->format);
