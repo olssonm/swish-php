@@ -1,11 +1,11 @@
+<img src="/media/swish.png" alt="Swish logo / olssonm/swish-php" style="max-width: 200px;">
+
 # Swish PHP
 
 [![Supported PHP-versions](https://img.shields.io/packagist/php-v/olssonm/swish-php?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/olssonm/swish-php.svg?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/olssonm/swish-php/test.yaml?branch=main&style=flat-square)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-
-![Swish logo](/media/swish.png)
 
 A simple, easy-to-use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
 
@@ -140,6 +140,8 @@ $response = Swish::create(new Payment([
     'message' => 'My product',
 ]));
 ```
+
+*The easiest way to see more complete examples is to look at the tests; in [MMS.php](/tests/MMS.php) all major examples are covered.*
 
 ### Payments and Refunds
 
