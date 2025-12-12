@@ -11,6 +11,7 @@ use Olssonm\Swish\Api\Payments;
 use Olssonm\Swish\Api\Refunds;
 use InvalidArgumentException;
 use Olssonm\Swish\Api\Payouts;
+use Olssonm\Swish\Api\QRs;
 
 /**
  * @mixin \Olssonm\Swish\Api\Payments
@@ -113,7 +114,9 @@ class Client
             (
                 (get_class($args[0]) != Payment::class) &&
                 (get_class($args[0]) != Refund::class) &&
-                (get_class($args[0]) != Payout::class)
+                (get_class($args[0]) != Payout::class) &&
+                (get_class($args[0]) != QR::class)
+
             )
         ) {
             throw new InvalidArgumentException(
@@ -132,6 +135,10 @@ class Client
 
             case Payout::class:
                 $class = new Payouts($this->client, $this);
+                break;
+
+            case QR::class:
+                $class = new QRs($this->client);
                 break;
         }
 
