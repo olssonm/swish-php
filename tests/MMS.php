@@ -115,6 +115,6 @@ test('full chain of requests', function () {
     file_put_contents(__DIR__ . '/output/qr-test.png', $qrResponse->data);
 
     // Save as .html with a base64 embedded image
-    $html = '<html><body><img src="data:' . $qrResponse->contentType . ';base64,' . base64_encode($qrResponse->data) . '"/></body></html>';
+    $html = '<html><body><img src="' . $qrResponse->toBase64() . '"/></body></html>';
     file_put_contents(__DIR__ . '/output/qr-test.html', $html);
 });
