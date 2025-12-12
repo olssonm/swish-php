@@ -1,4 +1,4 @@
-<img src="/media/swish.png" alt="Swish logo / olssonm/swish-php" style="max-width: 200px;">
+<img src="/media/swish.png" alt="Swish logo / olssonm/swish-php" width="200">
 
 # Swish PHP
 
