@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.7 - 2025-12-13
+
+Adds the ability to generate QR-codes in accordance with the "Mcom to Qcom"-flow. Enjoy!
+
+### What's Changed
+
+* Cleanup absolute path checker by @olssonm in https://github.com/olssonm/swish-php/pull/31
+* Add support for QR-code generation by @olssonm in https://github.com/olssonm/swish-php/pull/30
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.6...v3.7
+
 ## v3.6 - 2025-12-04
 
 ### What's Changed
