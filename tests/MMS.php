@@ -4,6 +4,8 @@ use Olssonm\Swish\Payment;
 use Olssonm\Swish\PaymentResult;
 use Olssonm\Swish\Payout;
 use Olssonm\Swish\PayoutResult;
+use Olssonm\Swish\QR;
+use Olssonm\Swish\QRResult;
 use Olssonm\Swish\Refund;
 use Olssonm\Swish\RefundResult;
 use Olssonm\Swish\Util\Time;
@@ -19,9 +21,8 @@ test('full chain of requests', function () {
         'amount' => 100,
         'paymentRefeference' => 'abc123',
         'currency' => 'SEK',
-        'payee' => '123456789',
         'message' => 'Kingston USB Flash Drive 8 GB',
-        'callbackUrl' => 'https://webhook.site/ee23acc8-0ad9-4c34-866e-ef8ef421d7d4',
+        'callbackUrl' => 'https://example.com/callback',
         'payerAlias' => '4671234768',
         'payeeAlias' => '1231181189',
     ]);
@@ -42,7 +43,7 @@ test('full chain of requests', function () {
     $refund = new Refund([
         'payerPaymentReference' => '0123456789',
         'originalPaymentReference' => 'abc123',
-        'callbackUrl' => 'https://webhook.site/ee23acc8-0ad9-4c34-866e-ef8ef421d7d4',
+        'callbackUrl' => 'https://example.com/callback',
         'amount' => '100',
         'currency' => 'SEK',
         'payerAlias' => '1234567839',
@@ -80,4 +81,40 @@ test('full chain of requests', function () {
     $this->assertEquals(201, $client->getHistory()[4]['response']->getStatusCode());
     $this->assertEquals(get_class($response), PayoutResult::class);
     $this->assertEquals($payout->payoutInstructionUUID, $response->payoutInstructionUUID);
+
+    // Make QR
+    $payment = new Payment([
+        'amount' => 100,
+        'paymentRefeference' => 'abc123',
+        'currency' => 'SEK',
+        'message' => 'Kingston USB Flash Drive 8 GB',
+        'callbackUrl' => 'https://example.com/callback',
+        'payeeAlias' => '1231181189',
+    ]);
+
+    $id = $payment->id;
+
+    $paymentResponse = $client->create($payment);
+    $this->assertEquals(201, $client->getHistory()[0]['response']->getStatusCode());
+    $this->assertEquals($id, $paymentResponse->id);
+    $this->assertEquals(get_class($paymentResponse), PaymentResult::class);
+
+    // Create QR
+    $qr = new QR([
+        'token' => $paymentResponse->paymentRequestToken,
+        'format' => 'png',
+        'size' => 600,
+        'transparent' => true,
+    ]);
+
+    $qrResponse = $client->create($qr);
+    $this->assertEquals(201, $client->getHistory()[0]['response']->getStatusCode());
+    $this->assertEquals(get_class($qrResponse), QRResult::class);
+
+    // Save the image for inspection
+    file_put_contents(__DIR__ . '/output/qr-test.png', $qrResponse->data);
+
+    // Save as .html with a base64 embedded image
+    $html = '<html><body><img src="' . $qrResponse->toBase64() . '"/></body></html>';
+    file_put_contents(__DIR__ . '/output/qr-test.html', $html);
 });

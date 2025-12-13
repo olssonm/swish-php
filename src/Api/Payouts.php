@@ -60,7 +60,7 @@ class Payouts extends AbstractResource
      * @param Payout $transaction
      * @throws \BadMethodCallException
      */
-    public function cancel($transaction): void
+    public function cancel($transaction): never
     {
         throw new \BadMethodCallException('Payouts can not be cancelled.');
     }

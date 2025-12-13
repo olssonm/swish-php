@@ -7,14 +7,17 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use Olssonm\Swish\Api\Payments;
-use Olssonm\Swish\Api\Refunds;
 use InvalidArgumentException;
+use Olssonm\Swish\Api\Payments;
 use Olssonm\Swish\Api\Payouts;
+use Olssonm\Swish\Api\QRs;
+use Olssonm\Swish\Api\Refunds;
 
 /**
  * @mixin \Olssonm\Swish\Api\Payments
  * @mixin \Olssonm\Swish\Api\Refunds
+ * @mixin \Olssonm\Swish\Api\Payouts
+ * @mixin \Olssonm\Swish\Api\QRs
  */
 class Client
 {
@@ -113,11 +116,13 @@ class Client
             (
                 (get_class($args[0]) != Payment::class) &&
                 (get_class($args[0]) != Refund::class) &&
-                (get_class($args[0]) != Payout::class)
+                (get_class($args[0]) != Payout::class) &&
+                (get_class($args[0]) != QR::class)
+
             )
         ) {
             throw new InvalidArgumentException(
-                'Only Payment-, Payout- and Refund-objects are allowed as first argument'
+                'Only Payment-, Payout-, Refund- and QR-objects are allowed as first argument'
             );
         }
 
@@ -132,6 +137,10 @@ class Client
 
             case Payout::class:
                 $class = new Payouts($this->client, $this);
+                break;
+
+            case QR::class:
+                $class = new QRs($this->client);
                 break;
         }
 

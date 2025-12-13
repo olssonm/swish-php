@@ -1,3 +1,5 @@
+<img src="/media/swish.png" alt="Swish logo / olssonm/swish-php" width="200">
+
 # Swish PHP
 
 [![Supported PHP-versions](https://img.shields.io/packagist/php-v/olssonm/swish-php?style=flat-square)](https://packagist.org/packages/olssonm/swish-php)
@@ -5,7 +7,7 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/olssonm/swish-php/test.yaml?branch=main&style=flat-square)](https://github.com/olssonm/swish-php/actions?query=workflow%3A%22Run+tests%22)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
-A simple, easy-to-use wrapper for the Swish-API in PHP. Also includes providers and facades for quick setup with Laravel.
+The leading Swish API-wrapper for PHP: minimal setup, rigorous tests, and Laravel providers built in.
 
 ## Prerequisites
 
@@ -139,6 +141,8 @@ $response = Swish::create(new Payment([
 ]));
 ```
 
+*The easiest way to see more complete examples is to look at the tests; in [MMS.php](/tests/MMS.php) all major examples are covered.*
+
 ### Payments and Refunds
 
 > [!TIP]
@@ -148,6 +152,50 @@ Always when using the client, use the Payment and Refund-classes <u>even if only
 
 ``` php
 $payment = $client->get(new Payment(['id' => '5D59DA1B1632424E874DDB219AD54597']));
+```
+
+### QR-codes
+
+QR codes is another way that users can pay – using them they do not need to supply their phone number. This also makes it possible to pay using POS terminals and such, which may lack any input-methods such as a keyboard or touch screen.
+
+***Note** This package creates QR-codes according to the [Mcom to Qcom](https://developer.swish.nu/api/qr-codes/v1#mcom-to-qcom)-flow. While Swish provides endpoints to create "prefilled QR-codes" and more, they lack the ability to automatically verify payments which makes them unsuitable for web applications and therefore is outside the scope of this package.*
+
+Creating QR-codes requires two requests to the Swish API; first to create the payment and retrieve the payment request token, and then a separate request to get a QR code. Create the payment as usual, but *exclude the payerAlias* (users phone number); else the QR-endpoint will fail.
+
+``` php
+use Olssonm\Swish\Payment;
+use Olssonm\Swish\QR;
+
+// Create payment
+$payment = new Payment([
+    'callbackUrl' => 'https://callback.url',
+    'payeePaymentReference' => 'XVY77',
+    'payeeAlias' => '123xxxxx',
+    'amount' => '100',
+    'currency' => 'SEK',
+    'message' => 'A purchase of my product',
+]);
+
+$paymentResponse = $client->create($payment);
+
+// Create QR code
+$qr = new QR([
+    'token' => $paymentResponse->paymentRequestToken
+]);
+
+$qrResponse = $client->create($qr);
+```
+
+With this response you could for instance save the image:
+
+``` php
+file_put_contents(__DIR__ . '/swish/qr.png', $qrResponse->data);
+```
+
+Or output it as base64 with the included helper:
+
+``` php
+<img src="<?php echo $qrResponse->toBase64(); ?>" />
 ```
 
 ### Payouts
@@ -188,7 +236,7 @@ $payout = new Payout([
 ```
 
 > [!IMPORTANT]  
-> Note that Payouts uses `payoutInstructionUUID` instead of an `ID`, you should [set this yourself to keep track of it](#regarding-idsuuids). If it's missing, it will be set automatically upon creation.
+> Note that Payouts use `payoutInstructionUUID` instead of an `ID`, you should [set this yourself to keep track of it](#regarding-idsuuids). If it's missing, it will be set automatically upon creation.
 
 ### Regarding IDs/UUIDs
 
@@ -217,7 +265,7 @@ This package handles the most common Swish-related tasks; retrieve, make and can
 
 ``` php
 $client->get(Payment $payment | Refund $refund | Payout $payout);  
-$client->create(Payment $payment | Refund $refund | Payout $payout);  
+$client->create(Payment $payment | Refund $refund | Payout $payout | QR $qr);  
 $client->cancel(Payment $payment);
 ```
 
@@ -240,7 +288,7 @@ try {
 }
 ```
 
-For `4xx`-error a `\Olssonm\Swish\Exceptions\ClientException` will be thrown, and for `5xx`-errors `\Olssonm\Swish\Exceptions\ServerException`. Both of these implements Guzzles `BadResponseException` which makes the request- and response-objects available if needed.
+For `4xx`-errors a `\Olssonm\Swish\Exceptions\ClientException` will be thrown, and for `5xx`-errors `\Olssonm\Swish\Exceptions\ServerException`. Both of these implements Guzzle's `BadResponseException` which makes the request- and response-objects available if needed.
 
 ## Callbacks
 
@@ -280,6 +328,12 @@ class SwishController
 
 > [!CAUTION]
 > Please note that the callback from Swish is not encrypted or encoded in any way, instead you should make sure that the callback is coming from a [valid IP range](https://developer.swish.nu/documentation/environments). 
+
+## Testing and contributing
+
+Testing is done via pest. Simply run `composer test` to run them.
+
+I take pride knowing that all code is tested and aim for 100% test coverage. If you want to contribute, please make sure to add tests and to make sure that no tests fail.
 
 ## License
 
