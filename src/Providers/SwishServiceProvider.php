@@ -52,7 +52,18 @@ class SwishServiceProvider extends ServiceProvider
 
     private function isAbsolutePath(string $path): bool
     {
-        return $path !== '' && ($path[0] === '/' || $path[0] === '\\' || (strlen($path) > 3 && ctype_alpha($path[0]) && $path[1] === ':' && ($path[2] === '\\' || $path[2] === '/')));
+        if ($path === '') {
+            return false;
+        }
+
+        if ($path[0] === '/' || $path[0] === '\\') {
+            return true;
+        }
+
+        return strlen($path) >= 3
+            && ctype_alpha($path[0])
+            && $path[1] === ':'
+            && ($path[2] === '\\' || $path[2] === '/');
     }
 
     /** @return array<string> */
