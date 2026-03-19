@@ -38,18 +38,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - laravel: '11.*'
-            php: '8.2'
-            testbench: '^9.0'
           - laravel: '12.*'
-            php: '8.3'
+            php: '8.2'
             testbench: '^10.0'
           - laravel: '12.*'
             php: '8.4'
             testbench: '^10.0'
-          - laravel: '12.*'
+          - laravel: '13.*'
+            php: '8.3'
+            testbench: '^11.0'
+          - laravel: '13.*'
+            php: '8.4'
+            testbench: '^11.0'
+          - laravel: '13.*'
             php: '8.5'
-            testbench: '^10.0'
+            testbench: '^11.0'
 
     name: PHP ${{ matrix.php }} / Laravel ${{ matrix.laravel }} (ubuntu-latest)
 

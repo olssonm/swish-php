@@ -24,7 +24,4 @@
     disableCodeCoverageIgnore="false"
   />
 
-  <php>
-    <ini name="xdebug.mode" value="coverage" />
-  </php>
 </phpunit>
