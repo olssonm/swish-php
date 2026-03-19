@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.8 - 2026-03-19
+
+Add support for Laravel 13, drop support for Laravel 11.
+
+### What's Changed
+
+* Check Laravel 13 compatibility by @olssonm in https://github.com/olssonm/swish-php/pull/32
+
+**Full Changelog**: https://github.com/olssonm/swish-php/compare/v3.7...v3.8
+
 ## v3.7 - 2025-12-13
 
 Adds the ability to generate QR-codes in accordance with the "Mcom to Qcom"-flow. Enjoy!
