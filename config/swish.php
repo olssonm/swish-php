@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'disk' => env('SWISH_CERTIFICATE_DISK', 'local'),
+    'copy_disk' => env('SWISH_CERTIFICATE_COPY_DISK'),
+    'copy_path' => env('SWISH_CERTIFICATE_COPY_PATH'),
     'certificates' => [
         'client' => env('SWISH_CLIENT_CERTIFICATE_PATH'),
         'password' => env('SWISH_CLIENT_CERTIFICATE_PASSWORD'),

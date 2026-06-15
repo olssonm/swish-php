@@ -25,13 +25,28 @@ class SwishServiceProvider extends ServiceProvider
             /** @var \Illuminate\Filesystem\FilesystemManager $storage */
             $storage = $app->get('filesystem');
 
+            $disk = $config->get('swish.disk', 'local');
+
+            $key = $config->get('swish.certificates.client');
+            $copyDisk = $config->get('swish.copy_disk');
+            $copyPath = $config->get('swish.copy_path') ?: $key;
+
+            if (
+                $key && $copyDisk
+                && ! $this->isAbsolutePath($key)
+                && ! $storage->disk($disk)->exists($key)
+                && $storage->disk($copyDisk)->exists($copyPath)
+            ) {
+                $storage->disk($disk)->put($key, (string) $storage->disk($copyDisk)->get($copyPath));
+            }
+
             $certificate = new Certificate(
-                clientPath: $this->resolvePath($storage, $config->get('swish.certificates.client')),
+                clientPath: $this->resolvePath($storage, $config->get('swish.certificates.client'), $disk),
                 passphrase: $config->get('swish.certificates.password'),
                 rootPath: is_bool($config->get('swish.certificates.root'))
                     ? $config->get('swish.certificates.root')
-                    : $this->resolvePath($storage, $config->get('swish.certificates.root')),
-                signingPath: $this->resolvePath($storage, $config->get('swish.certificates.signing')),
+                    : $this->resolvePath($storage, $config->get('swish.certificates.root'), $disk),
+                signingPath: $this->resolvePath($storage, $config->get('swish.certificates.signing'), $disk),
                 signingPassphrase: $config->get('swish.certificates.signing_password')
             );
 
@@ -41,13 +56,13 @@ class SwishServiceProvider extends ServiceProvider
         $this->app->alias('swish', Client::class);
     }
 
-    private function resolvePath(FilesystemManager $storage, ?string $path): string
+    private function resolvePath(FilesystemManager $storage, ?string $path, string $disk = 'local'): string
     {
         if (empty($path)) {
             return '';
         }
 
-        return $this->isAbsolutePath($path) ? $path : $storage->path($path);
+        return $this->isAbsolutePath($path) ? $path : $storage->disk($disk)->path($path);
     }
 
     private function isAbsolutePath(string $path): bool

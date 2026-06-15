@@ -64,6 +64,9 @@ In `/config/swish.php`, you can then set your details accordingly:
 
 ``` php
 return [
+    'disk' => env('SWISH_CERTIFICATE_DISK', 'local'),
+    'copy_disk' => env('SWISH_CERTIFICATE_COPY_DISK'),
+    'copy_path' => env('SWISH_CERTIFICATE_COPY_PATH'),
     'certificates' => [
         'client' => env('SWISH_CLIENT_CERTIFICATE_PATH'),
         'password' => env('SWISH_CLIENT_CERTIFICATE_PASSWORD'),
@@ -81,6 +84,20 @@ For convenience and security, you can use relative paths to reference your certi
 
 ```env
 SWISH_CLIENT_CERTIFICATE_PATH=swish/client.pem # storage/app/private/swish/client.pem
+```
+
+Relative paths are resolved against the disk named in `swish.disk` (default `local`), independent of your application's default filesystem disk. cURL needs a real local filesystem path for the mTLS handshake, so this must be a `local`-driver disk, not a remote disk (e.g. S3/R2).
+
+#### Serverless / ephemeral hosts (e.g. Laravel Cloud)
+
+On hosts where the local filesystem is reset on each deploy, keep the certificate on a (private) persistent disk (e.g. S3/R2) and let the package copy it onto the local `swish.disk` on demand. Set `swish.copy_disk` (and optionally `swish.copy_path`); when the client certificate is missing from `swish.disk`, it is copied from there the first time the client is resolved.
+
+If `swish.copy_disk` is not set, no copying occurs.
+
+```env
+SWISH_CERTIFICATE_DISK=local
+SWISH_CERTIFICATE_COPY_DISK=s3
+SWISH_CERTIFICATE_COPY_PATH=swish/client.pem # optional, defaults to SWISH_CLIENT_CERTIFICATE_PATH
 ```
 
 If you prefer to keep your certificates in a specific location outside the default storage directory, you can provide an absolute path. However, be aware that when using an absolute path, the package will not utilize the filesystem to resolve the relative path.

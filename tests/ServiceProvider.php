@@ -18,10 +18,16 @@ it('resolves absolute paths correctly', function () {
 });
 
 it('resolves relative paths correctly', function () {
-    $storage = mock(FilesystemManager::class)
+    $disk = mock(\Illuminate\Contracts\Filesystem\Filesystem::class)
         ->shouldReceive('path')
         ->with('relative/path/to/file')
         ->andReturn('/resolved/path/to/file')
+        ->getMock();
+
+    $storage = mock(FilesystemManager::class)
+        ->shouldReceive('disk')
+        ->with('local')
+        ->andReturn($disk)
         ->getMock();
 
     $provider = new SwishServiceProvider(mock(Container::class));
@@ -96,18 +102,28 @@ it('registers the swish singleton correctly', function () {
         ->with('swish.endpoint')
         ->andReturn('https://swish.example.com');
 
-    // Mock the `path` method for resolving paths
-    $storageMock->shouldReceive('path')
+    $configMock->shouldReceive('get')
+        ->with('swish.disk', 'local')
+        ->andReturn('local');
+
+    // Mock the `path` method on the configured disk for resolving paths
+    $diskMock = mock(\Illuminate\Contracts\Filesystem\Filesystem::class);
+
+    $diskMock->shouldReceive('path')
         ->with('client-cert.pem')
         ->andReturn('/resolved/client-cert.pem');
 
-    $storageMock->shouldReceive('path')
+    $diskMock->shouldReceive('path')
         ->with('root-cert.pem')
         ->andReturn('/resolved/root-cert.pem');
 
-    $storageMock->shouldReceive('path')
+    $diskMock->shouldReceive('path')
         ->with('signing-cert.pem')
         ->andReturn('/resolved/signing-cert.pem');
+
+    $storageMock->shouldReceive('disk')
+        ->with('local')
+        ->andReturn($diskMock);
 
     // Mock the `singleton` method to verify the closure
     $container->shouldReceive('singleton')
@@ -160,4 +176,70 @@ it('resolves facade with true key', function () {
     $client = get_facade_client();
     expect($client)->toBeInstanceOf(Client::class);
     expect($client->getCertificate()->getRootCertificate())->toBeTrue();
+});
+
+it('resolves a relative certificate against the local disk, not the default disk', function () {
+    // The default disk is something other than the local disk (e.g. S3/R2 on Laravel Cloud,
+    // whose path() returns the bare object key instead of an absolute filesystem path).
+    $localRoot = sys_get_temp_dir() . '/swish-local-root';
+    $defaultRoot = sys_get_temp_dir() . '/swish-default-root';
+
+    config()->set('filesystems.disks.local', ['driver' => 'local', 'root' => $localRoot]);
+    config()->set('filesystems.disks.objectstore', ['driver' => 'local', 'root' => $defaultRoot]);
+    config()->set('filesystems.default', 'objectstore');
+
+    config()->set('swish.certificates.client', 'swish/client.pem');
+
+    [$clientPath] = get_facade_client()->getCertificate()->getClientCertificate();
+
+    expect($clientPath)->toBe($localRoot . '/swish/client.pem');
+});
+
+it('resolves a relative certificate against a custom configured disk', function () {
+    $certsRoot = sys_get_temp_dir() . '/swish-certs-root';
+
+    config()->set('filesystems.disks.certs', ['driver' => 'local', 'root' => $certsRoot]);
+    config()->set('swish.disk', 'certs');
+    config()->set('swish.certificates.client', 'swish/client.pem');
+
+    [$clientPath] = get_facade_client()->getCertificate()->getClientCertificate();
+
+    expect($clientPath)->toBe($certsRoot . '/swish/client.pem');
+});
+
+it('copies the client certificate from the copy disk when missing on the destination disk', function () {
+    $destRoot = sys_get_temp_dir() . '/swish-dest-root';
+    $copyRoot = sys_get_temp_dir() . '/swish-copy-root';
+    @mkdir($copyRoot, 0777, true);
+    file_put_contents($copyRoot . '/client.pem', 'CERT-BYTES');
+    @unlink($destRoot . '/client.pem');
+
+    config()->set('filesystems.disks.dest', ['driver' => 'local', 'root' => $destRoot]);
+    config()->set('filesystems.disks.copy', ['driver' => 'local', 'root' => $copyRoot]);
+    config()->set('swish.disk', 'dest');
+    config()->set('swish.copy_disk', 'copy');
+    config()->set('swish.certificates.client', 'client.pem');
+
+    get_facade_client();
+
+    expect(file_exists($destRoot . '/client.pem'))->toBeTrue();
+    expect(file_get_contents($destRoot . '/client.pem'))->toBe('CERT-BYTES');
+});
+
+it('does not copy the certificate when no copy disk is configured', function () {
+    $destRoot = sys_get_temp_dir() . '/swish-dest-root-2';
+    $copyRoot = sys_get_temp_dir() . '/swish-copy-root-2';
+    @mkdir($copyRoot, 0777, true);
+    file_put_contents($copyRoot . '/client.pem', 'CERT-BYTES');
+    @unlink($destRoot . '/client.pem');
+
+    config()->set('filesystems.disks.dest', ['driver' => 'local', 'root' => $destRoot]);
+    config()->set('filesystems.disks.copy', ['driver' => 'local', 'root' => $copyRoot]);
+    config()->set('swish.disk', 'dest');
+    config()->set('swish.copy_disk', null);
+    config()->set('swish.certificates.client', 'client.pem');
+
+    get_facade_client();
+
+    expect(file_exists($destRoot . '/client.pem'))->toBeFalse();
 });
